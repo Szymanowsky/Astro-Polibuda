@@ -13,6 +13,7 @@
 #include "Coin.h"
 #include "Asteroid.h"
 #include "Missile.h"
+#include "Enemy_missile.h"
 #include "Boom.h"
 #include "Enemy.h"
 #include "Bonus.h"
@@ -28,7 +29,9 @@ class SilnikGry
 {
 private:
 	Vector2i mouse_pos;
+	Vector2i saved_mouse_pos;
 	Vector2f translated_pos;
+
 
 	Event e;
 
@@ -49,7 +52,6 @@ private:
 
 	//Zmienne kontrolne
 	Clock cooldown_clock;
-	bool stopper;
 	Time cooldown;
 	
 
@@ -59,6 +61,7 @@ private:
 	vector<AnimowaneAssety*> coins;
 	vector<AnimowaneAssety*> asteroids;
 	vector<AnimowaneAssety*> missiles;
+	vector<AnimowaneAssety*> enemy_missiles;
 	vector<AnimowaneAssety*> explosions;
 	vector<AnimowaneAssety*> enemies;
 	vector<AnimowaneAssety*> enemies_2;
@@ -83,11 +86,19 @@ private:
 	Text sila;
 	Text ROF;
 	Text BonusX2;
+	Text pauza;
+	Text wznow;
+	Text wyjdz;
+	Text start;
+	Text latwy;
+	Text trudny;
 
 	vector<Indicator*> indicators;
 
 	RectangleShape rectangle;
-	RectangleShape HP_bar;
+	RectangleShape tloMenu;
+	RectangleShape HP_bar; 
+	RectangleShape tloGlowneMenu;
 
 	Sound sound;
 	Sound sound_boom;
@@ -107,6 +118,9 @@ private:
 	int frame;
 	int flaga = 0;
 	int szansa = 1; // 20 - 100%  <-- 10 - 50% -->   0 - 0%
+
+	bool wstep = 1;
+	bool gamePaused = 0;
 
 public:
 	SilnikGry();

@@ -6,8 +6,8 @@ void SilnikGry::stworzOkno()
 	this->okno->setActive(true);
 	this->okno->setFramerateLimit(60);
 	this->okno->setKeyRepeatEnabled(false);
-	this->okno->setMouseCursorGrabbed(true);
-	this->okno->setMouseCursorVisible(false);
+	this->okno->setMouseCursorGrabbed(false);
+	this->okno->setMouseCursorVisible(true);
 	this->okno->setVerticalSyncEnabled(false);
 }
 
@@ -18,6 +18,9 @@ void SilnikGry::stworzTekstury()
 
 	this->textures["missile"] = new Texture;
 	this->textures["missile"]->loadFromFile("textures/missile.png");
+	
+	this->textures["bomb"] = new Texture;
+	this->textures["bomb"]->loadFromFile("textures/bomb.png");
 
 	this->textures["asteroid"] = new Texture;
 	this->textures["asteroid"]->loadFromFile("textures/asteroid.png");
@@ -77,6 +80,7 @@ void SilnikGry::stworzGui()
 	this->ROF.setFillColor(Color::Yellow);
 	this->ROF.setStyle(sf::Text::Bold);
 
+
 	this->BonusX2.setFont(this->font);
 	this->BonusX2.setCharacterSize(42);
 	this->BonusX2.setFillColor(Color(255,255,255,0));
@@ -87,6 +91,69 @@ void SilnikGry::stworzGui()
 	this->HP_bar.setSize(sf::Vector2f(200, 20));
 	this->HP_bar.setFillColor(sf::Color::Red);
 	this->HP_bar.setPosition(110, 672);
+
+	this->tloMenu.setSize(Vector2f(this->okno->getSize().x, this->okno->getSize().y));
+	this->tloMenu.setFillColor(Color(0,0,0,170));
+	
+	this->pauza.setFont(this->font);
+	this->pauza.setCharacterSize(120);
+	this->pauza.setFillColor(Color::White);
+	this->pauza.setStyle(sf::Text::Bold); 
+	this->pauza.setString("PAUSE");
+	this->pauza.setPosition(
+		this->okno->getSize().x / 2 - this->pauza.getGlobalBounds().width / 2,
+		this->okno->getSize().y / 6 - this->pauza.getGlobalBounds().height / 2
+	);
+
+	this->wznow.setFont(this->font);
+	this->wznow.setCharacterSize(45);
+	this->wznow.setFillColor(Color::White);
+	this->wznow.setStyle(sf::Text::Bold);
+	this->wznow.setString("RETURN");
+	this->wznow.setPosition(
+		this->okno->getSize().x / 2 - this->wznow.getGlobalBounds().width / 2,
+		this->okno->getSize().y / 2 - this->wznow.getGlobalBounds().height / 2 - 30
+	);
+
+	this->wyjdz.setFont(this->font);
+	this->wyjdz.setCharacterSize(45);
+	this->wyjdz.setFillColor(Color::White);
+	this->wyjdz.setStyle(sf::Text::Bold);
+	this->wyjdz.setString("EXIT");
+	this->wyjdz.setPosition(
+		this->okno->getSize().x / 2 - this->wyjdz.getGlobalBounds().width / 2,
+		this->okno->getSize().y / 2 - this->wyjdz.getGlobalBounds().height / 2 + 30
+	);
+
+	this->latwy.setFont(this->font);
+	this->latwy.setCharacterSize(45);
+	this->latwy.setFillColor(Color::Black);
+	this->latwy.setStyle(sf::Text::Bold);
+	this->latwy.setString("EASY");
+	this->latwy.setPosition(
+		this->okno->getSize().x / 2 - this->latwy.getGlobalBounds().width / 2 - 150,
+		this->okno->getSize().y / 1.2 - this->latwy.getGlobalBounds().height / 2 
+	);
+
+	this->trudny.setFont(this->font);
+	this->trudny.setCharacterSize(45);
+	this->trudny.setFillColor(Color::Black);
+	this->trudny.setStyle(sf::Text::Bold);
+	this->trudny.setString("HARD");
+	this->trudny.setPosition(
+		this->okno->getSize().x / 2 - this->trudny.getGlobalBounds().width / 2 + 150,
+		this->okno->getSize().y / 1.2 - this->trudny.getGlobalBounds().height / 2
+	);
+
+	this->start.setFont(this->font);
+	this->start.setCharacterSize(75);
+	this->start.setFillColor(Color::Black);
+	this->start.setStyle(sf::Text::Bold);
+	this->start.setString("START");
+	this->start.setPosition(
+		this->okno->getSize().x / 2 - this->start.getGlobalBounds().width / 2,
+		this->okno->getSize().y / 1.10 - this->start.getGlobalBounds().height / 2
+	);
 }
 
 void SilnikGry::stworzObiekty()
@@ -150,49 +217,103 @@ void SilnikGry::run()
 	while (this->okno->isOpen())
 	{
 		this->updatePollEvents();
-		this->update();
-		this->render();
-		this->rozgrywka();
-
-		this->time = clock.getElapsedTime();
-		this->cooldown = cooldown_clock.getElapsedTime();
-
-		if (Keyboard::isKeyPressed(Keyboard::E))
-		{
-			stopper = 1;
-			while (stopper == 1)
-			{
-				this->render();
-				updatePollEvents();
-
-				if (Keyboard::isKeyPressed(Keyboard::E))
-				{
-					stopper = 0;
-				}
-			}
+		if (!gamePaused) {
+			this->update();
+			this->render();
+			this->rozgrywka();
 		}
 	}
 }
 
 void SilnikGry::updatePollEvents()
 {
-	mouse_pos = Mouse::getPosition(*okno);
-	translated_pos = this->okno->mapPixelToCoords(mouse_pos);
-
 	while (this->okno->pollEvent(e))
 	{
-		this->player->setPosition(translated_pos.x - this->player->getBounds().width / 2, translated_pos.y - this->player->getBounds().height / 2);
-
 		if (e.Event::type == Event::Closed)
 			this->okno->close();
-		if (e.Event::KeyPressed && e.Event::key.code == Keyboard::Escape)
-			this->okno->close();
-	}
-	if (Mouse::isButtonPressed(Mouse::Left) && this->cooldown.asMilliseconds() > 2000/this->rof) {
-		this->missiles.emplace_back(new Missile(this->textures["missile"], translated_pos.x - 8, translated_pos.y - this->player->getBounds().height / 2));
-		sound.setBuffer(this->buffer_shoot);
-		sound.play();
-		this->cooldown = cooldown_clock.restart();
+
+		if (e.type == Event::KeyPressed && e.Event::key.code == Keyboard::Escape && !wstep) {
+			gamePaused = !gamePaused;
+			delta_clock.restart();
+			if (gamePaused == 1) {
+				saved_mouse_pos = Mouse::getPosition();
+				this->okno->setMouseCursorVisible(true);
+			}
+			else {
+				Mouse::setPosition(saved_mouse_pos);
+				this->okno->setMouseCursorVisible(false);
+			}
+
+			while (gamePaused == 1) {
+				render();
+				updatePollEvents();
+				if (Mouse::isButtonPressed(Mouse::Left) && wznow.getGlobalBounds().contains(this->okno->mapPixelToCoords(Mouse::getPosition(*okno)))) {
+					gamePaused = 0;
+					
+					delta_clock.restart();
+					Mouse::setPosition(saved_mouse_pos);
+					this->okno->setMouseCursorVisible(false);
+				}
+				if (Mouse::isButtonPressed(Mouse::Left) && wyjdz.getGlobalBounds().contains(this->okno->mapPixelToCoords(Mouse::getPosition(*okno)))) {
+					this->okno->close();
+				}
+			}
+		}
+		while (wstep) {
+			
+			tloGlowneMenu.setFillColor(Color::White);
+			tloGlowneMenu.setSize(Vector2f(1280, 720));
+
+			Texture infobox;
+			infobox.loadFromFile("textures/infobox.png");
+			Sprite info_box;
+			info_box.setTexture(infobox);
+			info_box.setScale(0.5f, 0.5f);
+			info_box.setPosition(this->okno->getSize().x / 2 - info_box.getGlobalBounds().width / 2, 20);
+
+			this->okno->draw(this->tloGlowneMenu);
+			this->okno->draw(info_box);
+			this->okno->draw(this->latwy);
+			this->okno->draw(this->trudny);
+			this->okno->draw(this->start);
+		
+			this->okno->display();
+
+			if (Mouse::isButtonPressed(Mouse::Left) && latwy.getGlobalBounds().contains(this->okno->mapPixelToCoords(Mouse::getPosition(*okno)))) {
+				this->szansa = 4;
+				this->power = 4;
+			}
+			if (Mouse::isButtonPressed(Mouse::Left) && trudny.getGlobalBounds().contains(this->okno->mapPixelToCoords(Mouse::getPosition(*okno)))) {
+				this->szansa = 1;
+				this->power = 1;
+			}
+			if (Mouse::isButtonPressed(Mouse::Left) && start.getGlobalBounds().contains(this->okno->mapPixelToCoords(Mouse::getPosition(*okno)))) {
+				this->clock.restart();
+				wstep = 0;
+				this->okno->setMouseCursorGrabbed(true);
+				this->okno->setMouseCursorVisible(false);
+				cout << "Zaczynamy przygodê!";
+			}
+
+			updatePollEvents();
+		}
+	}	
+
+	if (!gamePaused) {
+		mouse_pos = Mouse::getPosition(*okno);
+		translated_pos = this->okno->mapPixelToCoords(mouse_pos);
+
+		this->player->setPosition(translated_pos.x - this->player->getBounds().width / 2, translated_pos.y - this->player->getBounds().height / 2);
+
+		if (Mouse::isButtonPressed(Mouse::Left) && this->cooldown.asMilliseconds() > 2000 / this->rof) {
+			this->missiles.emplace_back(new Missile(this->textures["missile"], translated_pos.x - 8, translated_pos.y - this->player->getBounds().height / 2));
+			sound.setBuffer(this->buffer_shoot);
+			sound.play();
+			this->cooldown = cooldown_clock.restart();
+		}
+
+		this->time = clock.getElapsedTime();
+		this->cooldown = cooldown_clock.getElapsedTime();
 	}
 }
 
@@ -267,6 +388,12 @@ void SilnikGry::updateCollision()
 	for (auto en = enemies.begin(); en != enemies.end(); ) {
 		bool collisionDetected = false;
 		Enemy* enemy = dynamic_cast<Enemy*>(*en);
+
+		if (rand() % 1000 < 1 && (*en)->getCzas() > 2000) {
+			this->enemy_missiles.emplace_back(new Enemy_missile(this->textures["bomb"], (*en)->getPos().x+26, (*en)->getPos().y+(*en)->getBounds().height/1.8  ));
+			(*en)->restetCzas();
+		}
+
 		for (auto mis = missiles.begin(); mis != missiles.end(); ) {
 			if ((*en)->getBounds().intersects((*mis)->getBounds())) {
 				int wartosc_damage = 10 * this->power;
@@ -331,6 +458,12 @@ void SilnikGry::updateCollision()
 	for (auto en = enemies_2.begin(); en != enemies_2.end(); ) {
 		bool collisionDetected = false;
 		Enemy* enemy = dynamic_cast<Enemy*>(*en);
+
+		if (rand() % 1000 < 2 && (*en)->getCzas() > 1000) {
+			this->enemy_missiles.emplace_back(new Enemy_missile(this->textures["bomb"], (*en)->getPos().x + 26, (*en)->getPos().y + (*en)->getBounds().height / 1.8));
+			(*en)->restetCzas();
+		}
+
 		for (auto mis = missiles.begin(); mis != missiles.end(); ) {
 			if ((*en)->getBounds().intersects((*mis)->getBounds())) {
 				int wartosc_damage = 5 * this->power;
@@ -399,29 +532,59 @@ void SilnikGry::updateCollision()
             ++mis;
         }
     }
+	for (auto mis = enemy_missiles.begin(); mis != enemy_missiles.end(); ) {
+		if ((*mis)->getPos().y >800) {
+			delete* mis;
+			mis = enemy_missiles.erase(mis);
+		}
+		else {
+			++mis;
+		}
+	}
 
-	if (time.asSeconds() > 2){
-		//MONETA
-		for (auto* el : this->coins) {
+	//MONETA
+	for (auto* el : this->coins) {
+		if (el->getBounds().intersects(this->player->getBounds())) {
+
+			int wartosc_money = 5 * this->mnoznik;
+			stringstream ind;
+			ind << "+" << wartosc_money << "$";
+
+			this->indicators.emplace_back(new Indicator(el->getPos().x + 25, el->getPos().y, ind.str(), Color(252, 194, 0, 1)));
+			coins.erase(std::remove(coins.begin(), coins.end(), el), coins.end());
+			delete el;
+			this->money += 5 * this->mnoznik;;
+			if (this->sounds_money.size() > 5) {
+				this->sounds_money.erase(this->sounds_money.begin());
+			}
+			Sound* dzwiek = new Sound;
+			this->sounds_money.emplace_back(dzwiek);
+			(*this->sounds_money.back()).setBuffer(this->buffer_money);
+			(*this->sounds_money.back()).play();
+		}
+	}
+
+	if (this->player->getCzas()  > 2000){
+		
+		for (auto el : this->enemy_missiles) {
 			if (el->getBounds().intersects(this->player->getBounds())) {
 
-				int wartosc_money = 5 * this->mnoznik;
-				stringstream ind;
-				ind << "+" << wartosc_money << "$";
-
-				this->indicators.emplace_back(new Indicator(el->getPos().x+25, el->getPos().y, ind.str(), Color(252, 194, 0, 1)));
-				coins.erase(std::remove(coins.begin(), coins.end(), el), coins.end());
+				this->explosions.emplace_back(new Boom(this->textures["boom"], player->getPos().x - player->getBounds().width / 2, player->getPos().y - player->getBounds().height / 2));
+				enemy_missiles.erase(std::remove(enemy_missiles.begin(), enemy_missiles.end(), el), enemy_missiles.end());
 				delete el;
-				this->money += 5*this->mnoznik;;
-				if (this->sounds_money.size() > 5) {
-					this->sounds_money.erase(this->sounds_money.begin());
-				}
-				Sound* dzwiek = new Sound;
-				this->sounds_money.emplace_back(dzwiek);
-				(*this->sounds_money.back()).setBuffer(this->buffer_money);
-				(*this->sounds_money.back()).play();
+				this->HP -= 25;
+				this->player->restetCzas();
+				this->indicators.emplace_back(new Indicator(player->getPos().x + 80, player->getPos().y - 20, "-25HP", Color(255, 71, 73, 1)));
+
+				Vector2i start_position(this->okno->getSize().x / 2 - this->player->getBounds().width / 2,
+					this->okno->getSize().y / 2 - this->player->getBounds().height / 2 + 260);
+				Mouse::setPosition(start_position, *this->okno);
+
+				sound_boom.setBuffer(this->buffer_boom);
+				sound_boom.play();
 			}
 		}
+
 
 		//BONUS
 		for (auto* el : this->bonuses_power) {
@@ -485,6 +648,7 @@ void SilnikGry::updateCollision()
 				asteroids.erase(std::remove(asteroids.begin(), asteroids.end(), ast), asteroids.end());
 				delete ast;
 				this->HP -= 25;
+				this->player->restetCzas();
 				this->indicators.emplace_back(new Indicator(player->getPos().x + 80, player->getPos().y - 20, "-25HP", Color(255, 71, 73, 1)));
 
 				Vector2i start_position(this->okno->getSize().x / 2 - this->player->getBounds().width / 2,
@@ -502,6 +666,7 @@ void SilnikGry::updateCollision()
 				enemy->HP -= 25;
 				this->explosions.emplace_back(new Boom(this->textures["boom"], player->getPos().x - player->getBounds().width / 2, player->getPos().y - player->getBounds().height / 2));
 				this->HP -= 25;
+				this->player->restetCzas();
 				this->indicators.emplace_back(new Indicator(player->getPos().x + 80, player->getPos().y -20, "-25HP", Color(255, 71, 73, 1)));
 				if (enemy->HP <= 0) {
 					sound_boom.setBuffer(this->buffer_boom);
@@ -531,6 +696,7 @@ void SilnikGry::updateCollision()
 					enemy->HP -= 25;
 					this->explosions.emplace_back(new Boom(this->textures["boom"], player->getPos().x - player->getBounds().width / 2, player->getPos().y - player->getBounds().height / 2));
 					this->HP -= 25;
+					this->player->restetCzas();
 					this->indicators.emplace_back(new Indicator(player->getPos().x + 80, player->getPos().y - 20, "-25HP", Color(255, 71, 73, 1)));
 					if (enemy->HP <= 0) {
 						sound_boom.setBuffer(this->buffer_boom);
@@ -572,6 +738,8 @@ void SilnikGry::update()
 
 	this->player->update(dt);
 
+
+
 	for (auto el : this->coins) {
 		el->update(dt);
 	}
@@ -579,6 +747,9 @@ void SilnikGry::update()
 		el->update(dt);
 	}
 	for (auto el : this->missiles) {
+		el->update(dt);
+	}
+	for (auto el : this->enemy_missiles) {
 		el->update(dt);
 	}
 	for (auto el : this->explosions) {
@@ -651,6 +822,9 @@ void SilnikGry::render()
 	for (auto el : this->coins) {
 		el->render(this->okno);
 	}
+	for (auto el : this->enemy_missiles) {
+		el->render(this->okno);
+	}
 	for (auto el : this->asteroids) {
 		el->render(this->okno);
 	}
@@ -697,6 +871,15 @@ void SilnikGry::render()
 	}
 
 	this->renderGui();
+
+	if (gamePaused) {
+		this->okno->draw(this->tloMenu);
+		this->okno->draw(this->pauza);
+		this->okno->draw(this->wznow);
+		this->okno->draw(this->wyjdz);
+
+	}
+
 	this->okno->display();
 }
 

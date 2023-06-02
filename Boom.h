@@ -6,7 +6,6 @@
 class Boom : public AnimowaneAssety
 {
 private:
-	
 	float czasTrwania = 460.f; // Czas trwania "boomu" (w sekundach)
 public:
 	Boom(Texture* texture, float x, float y);
