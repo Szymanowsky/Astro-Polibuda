@@ -6,10 +6,10 @@
 class Asteroid : public AnimowaneAssety
 {
 private:
-	int x_speed = rand()%20 / 10 - 4;
-	int y_speed = rand()%20 / 10 - 4;;
+	float x_speed = rand() % 2000 / 1000 - 4;
+	float y_speed = rand()%2000/1000 +1;
 public:
-	Asteroid(string file, float x, float y);
+	Asteroid(Texture* texture, float x, float y);
 	~Asteroid();
 
 	int frame = rand() % 1024;

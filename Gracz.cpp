@@ -1,6 +1,6 @@
 #include "Gracz.h"
 
-Gracz::Gracz(string file, float x, float y) : AnimowaneAssety(file,x,y)
+Gracz::Gracz(Texture* texture, float x, float y) : AnimowaneAssety(texture,x,y)
 {
     this->sprite.scale(0.6f, 0.6f);
 }

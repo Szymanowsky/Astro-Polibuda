@@ -1,6 +1,6 @@
 #include "Bonus.h"
 
-Bonus::Bonus(string file, float x, float y) : AnimowaneAssety(file,x,y)
+Bonus::Bonus(Texture* texture, float x, float y) : AnimowaneAssety(texture,x,y)
 {
 	this->sprite.scale(0.2f,0.2f);
 	

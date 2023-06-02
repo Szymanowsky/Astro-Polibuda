@@ -1,6 +1,6 @@
 #include "Coin.h"
 
-Coin::Coin(string file, float x, float y) : AnimowaneAssety(file,x,y)
+Coin::Coin(Texture* texture, float x, float y) : AnimowaneAssety(texture,x,y)
 {
 	this->sprite.scale(1.2f,1.2f);
 }

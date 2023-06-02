@@ -1,5 +1,6 @@
 #include<iostream>
 #include<vector>
+#include<map>
 
 #include<SFML/Graphics.hpp>
 #include<SFML/Window.hpp>
@@ -26,6 +27,9 @@ using namespace std;
 class SilnikGry
 {
 private:
+	Vector2i mouse_pos;
+	Vector2f translated_pos;
+
 	Event e;
 
 	//Okno gry
@@ -43,17 +47,21 @@ private:
 	Time cooldown;
 	
 
+	map<std::string, Texture*> textures;
+
 	AnimowaneAssety* player;
 	vector<AnimowaneAssety*> coins;
 	vector<AnimowaneAssety*> asteroids;
 	vector<AnimowaneAssety*> missiles;
 	vector<AnimowaneAssety*> explosions;
 	vector<AnimowaneAssety*> enemies;
+	vector<AnimowaneAssety*> enemies_2;
 	vector<AnimowaneAssety*> bonuses;
 	
 
 	//System
-	void stworzokno();
+	void stworzOkno();
+	void stworzTekstury();
 	void stworzGui();
 	void stworzObiekty();
 	void stworzTlo();
@@ -83,6 +91,7 @@ private:
 	int HP = 100;
 	int money = 0;
 	int power = 1;
+	int mnoznik = 1;
 	int frame;
 	int flaga = 0;
 

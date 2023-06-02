@@ -12,10 +12,9 @@ protected:
 	RectangleShape rectangle;
 	RectangleShape HP_bar;
 
-	Clock clock;
-	float czasTrwania = 2.f;
+	bool ScreenGrabbed = 0;
 public:
-	Enemy(string file, float x, float y);
+	Enemy(Texture* texture, float x, float y);
 	~Enemy();
 
 	int frame = rand() % 21;

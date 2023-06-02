@@ -1,13 +1,14 @@
 #include "AnimowaneAssety.h"
 
 
-AnimowaneAssety::AnimowaneAssety(string file, float x, float y)
+AnimowaneAssety::AnimowaneAssety(Texture* texture, float x, float y)
 {
-	if (this->texture.loadFromFile(file) == false)
+	/*if (this->texture.loadFromFile(file) == false)
 	{
 		cout << "Error: Nie zaladowano textury!" << endl;
-	}
-	this->sprite.setTexture(this->texture);
+	}*/
+
+	this->sprite.setTexture(*texture);
 	this->sprite.scale(1.f, 1.f);
 	this->sprite.setPosition(x, y);
 }
@@ -15,6 +16,8 @@ AnimowaneAssety::AnimowaneAssety(string file, float x, float y)
 AnimowaneAssety::~AnimowaneAssety()
 {
 }
+
+
 
 void AnimowaneAssety::render(RenderTarget* target)
 {

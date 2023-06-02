@@ -1,6 +1,6 @@
 #include "Enemy.h"
 
-Enemy::Enemy(string file, float x, float y) : AnimowaneAssety(file,x,y)
+Enemy::Enemy(Texture* texture, float x, float y) : AnimowaneAssety(texture,x,y)
 {
 	this->sprite.scale(0.2f,0.2f);
 	x_speed = rand() % 40 / 10 - 2;
@@ -33,14 +33,20 @@ void Enemy::update()
 		this->sprite.getPosition().y - 10
 	);
 	HP_bar.setPosition(rectangle.getPosition().x, rectangle.getPosition().y);
-	
+
+	if (this->sprite.getPosition().y > 0) {
+		this->ScreenGrabbed = 1;
+	}
 
     if (this->sprite.getPosition().x < 0 || this->sprite.getPosition().x + this->sprite.getGlobalBounds().width > 1280) {
         this->x_speed *= -1;
     }
-    if (this->sprite.getPosition().y < 0 || this->sprite.getPosition().y > 300 + this->sprite.getGlobalBounds().height) {
+    if (this->sprite.getPosition().y < 0 && ScreenGrabbed == 1) {
         this->y_speed *= -1;
     }
+	if (this->sprite.getPosition().y > 300 + this->sprite.getGlobalBounds().height) {
+		this->y_speed *= -1;
+	}
 	HP_bar.setSize(sf::Vector2f(this->HP, 5));
 }
 

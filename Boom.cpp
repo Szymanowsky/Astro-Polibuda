@@ -1,11 +1,11 @@
 #include "Boom.h"
 
-Boom::Boom(string file, float x, float y) : AnimowaneAssety(file,x,y)
+Boom::Boom(Texture* texture, float x, float y) : AnimowaneAssety(texture,x,y)
 {
 	this->sprite.scale(1.f,1.f);
 }
 
-Boom::Boom(string file, float x, float y, float scale) : AnimowaneAssety(file, x, y)
+Boom::Boom(Texture* texture, float x, float y, float scale) : AnimowaneAssety(texture, x, y)
 {
 	this->sprite.scale(scale, scale);
 }

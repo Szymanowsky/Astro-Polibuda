@@ -1,11 +1,11 @@
 #include "Missile.h"
 
-Missile::Missile(string file, float x, float y) : AnimowaneAssety(file,x,y)
+Missile::Missile(Texture* texture, float x, float y) : AnimowaneAssety(texture,x,y)
 {
 	this->sprite.scale(0.5f, 0.5f);
 }
 
-Missile::Missile(string file, float x, float y, float speed) : AnimowaneAssety(file,x,y)
+Missile::Missile(Texture* texture, float x, float y, float speed) : AnimowaneAssety(texture,x,y)
 {
 	this->sprite.scale(0.5f, 0.5f);
 	this->movementSpeed = speed;

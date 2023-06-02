@@ -17,7 +17,7 @@ protected:
 
 	float movementSpeed = 5;
 public:
-	AnimowaneAssety(string file, float x, float y);
+	AnimowaneAssety(Texture* texture, float x, float y);
 	virtual ~AnimowaneAssety();
 
 	const Vector2f& getPos() const;
