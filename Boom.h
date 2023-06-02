@@ -5,12 +5,13 @@
 
 class Boom : public AnimowaneAssety
 {
+private:
+	Clock clock;
+	float czasTrwania = 460.f; // Czas trwania "boomu" (w sekundach)
 public:
 	Boom(string file, float x, float y);
 	~Boom();
 
-	Clock clock;
-	float czasTrwania = 460.f; // Czas trwania "boomu" (w sekundach)
 	float getCzasTrwania();
 	float getCzas();
 

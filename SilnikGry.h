@@ -13,6 +13,7 @@
 #include "Asteroid.h"
 #include "Missile.h"
 #include "Boom.h"
+#include "Enemy.h"
 
 #include <string>
 #include <sstream>
@@ -45,6 +46,7 @@ private:
 	vector<AnimowaneAssety*> asteroids;
 	vector<AnimowaneAssety*> missiles;
 	vector<AnimowaneAssety*> explosions;
+	vector<AnimowaneAssety*> enemies;
 
 	//System
 	void stworzokno();

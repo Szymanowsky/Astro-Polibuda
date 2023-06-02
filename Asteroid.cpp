@@ -19,9 +19,6 @@ void Asteroid::update()
     if (this->sprite.getPosition().y < 0 ) {
         this->y_speed *= -1;
     }
-    if (this->sprite.getPosition().y > 720 + this->sprite.getGlobalBounds().height) {
-        //WYPADNIÊCIE Z PLANSZY
-    }
 
 	frame += 1;
 	if (frame > 45) { frame = 0; }

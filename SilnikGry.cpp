@@ -34,12 +34,12 @@ void SilnikGry::stworzGui()
 	this->sila.setFillColor(Color::Yellow);
 	this->sila.setStyle(sf::Text::Bold);
 
-	rectangle.setSize(sf::Vector2f(200, 20));
-	rectangle.setFillColor(sf::Color::White);
-	rectangle.setPosition(110, 672);
-	HP_bar.setSize(sf::Vector2f(200, 20));
-	HP_bar.setFillColor(sf::Color::Red);
-	HP_bar.setPosition(110, 672);
+	this->rectangle.setSize(sf::Vector2f(200, 20));
+	this->rectangle.setFillColor(sf::Color::White);
+	this->rectangle.setPosition(110, 672);
+	this->HP_bar.setSize(sf::Vector2f(200, 20));
+	this->HP_bar.setFillColor(sf::Color::Red);
+	this->HP_bar.setPosition(110, 672);
 }
 
 void SilnikGry::stworzObiekty()
@@ -203,7 +203,7 @@ void SilnikGry::updateGui()
 	power << "Power: " << this->power;
 	this->sila.setString(power.str());
 
-	HP_bar.setSize(sf::Vector2f(2*(this->HP), 20));
+	this->HP_bar.setSize(sf::Vector2f(2*(this->HP), 20));
 
 	if (this->HP < 0) { this->HP = 0; }
 }
@@ -328,6 +328,9 @@ void SilnikGry::update()
 	for (auto el : this->explosions) {
 		el->update();
 	}
+	for (auto el : this->enemies) {
+		el->update();
+	}
 	if (frame > 960) { frame = 0; }
 	this->spriteTlo.setTextureRect(IntRect(0, 480 - int(frame / 2), 1280,720));
 
@@ -340,8 +343,6 @@ void SilnikGry::update()
 			else {
 				++asset;
 			}
-		}
-		else {
 		}
 	}
 }
@@ -369,6 +370,12 @@ void SilnikGry::render()
 	for (auto el : this->missiles) {
 		el->render(this->okno);
 	}
+	for (auto asset = enemies.begin(); asset != enemies.end();) {
+		if (Enemy* enemy = dynamic_cast<Enemy*>(*asset)) {
+			enemy->render(this->okno);
+		}
+		++asset;
+	}
 
 	this->player->render(this->okno);
 
@@ -395,6 +402,18 @@ void SilnikGry::rozgrywka()
 				}
 			}
 		}
-	
+	}
+	if (flaga == 1 && time.asSeconds() > 4) {
+		flaga++;
+		for (int i = 0; i < 4; i++) {
+			this->enemies.emplace_back(new Enemy("textures/enemy.png", rand() % this->okno->getSize().x - 100, (rand() % this->okno->getSize().y) / 4));
+
+			/*for (int j = 0; j < i; j++) {
+				while (this->enemies[j]->getBounds().intersects(this->enemies[i]->getBounds()) || this->enemies[j]->getBounds().intersects(this->player->getBounds())) {
+					this->enemies[i]->setPosition(rand() % this->okno->getSize().x - 100, (rand() % this->okno->getSize().y) / 4);
+				
+			}*/
+		}
+
 	}
 }
