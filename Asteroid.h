@@ -12,7 +12,7 @@ public:
 	Asteroid(string file, float x, float y);
 	~Asteroid();
 
-	int frame = rand() % 45;
+	int frame = rand() % 1024;
 	
 	void update();
 

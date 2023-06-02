@@ -6,7 +6,7 @@ void SilnikGry::stworzokno()
 	this->okno->setActive(true);
 	this->okno->setFramerateLimit(60);
 	this->okno->setKeyRepeatEnabled(false);
-	this->okno->setMouseCursorGrabbed(false);
+	this->okno->setMouseCursorGrabbed(true);
 	this->okno->setMouseCursorVisible(false);
 	this->okno->setVerticalSyncEnabled(false);
 }
@@ -50,26 +50,6 @@ void SilnikGry::stworzObiekty()
 		this->okno->getSize().y / 2 - this->player->getBounds().height / 2 + 260);
 
 	Mouse::setPosition(start_position, *this->okno);  // TOTALNIE CZARODZIEJSKIE TAJNIKI ŒRODKOWANIA I POZYCJONOWANIA XD
-
-	/*for (int i = 0; i < (rand() % 4 + 4); i++) {
-		this->coins.emplace_back(new Coin("textures/coin.png", rand() % this->okno->getSize().x, rand() % (this->okno->getSize().y/3)));
-
-		for (int j = 0; j < i; j++) {
-			while (this->coins[j]->getBounds().intersects(this->coins[i]->getBounds()) || this->coins[j]->getBounds().intersects(this->player->getBounds())) {
-				this->coins[i]->setPosition(rand() % this->okno->getSize().x, rand() % this->okno->getSize().y);
-			}
-		}
-	}
-	
-	for (int i = 0; i < 4; i++) {
-		this->asteroids.emplace_back(new Asteroid("textures/asteroid.png", rand() % this->okno->getSize().x, rand() % (this->okno->getSize().y/4)));
-
-		for (int j = 0; j < i; j++) {
-			while (this->asteroids[j]->getBounds().intersects(this->asteroids[i]->getBounds()) || this->asteroids[j]->getBounds().intersects(this->player->getBounds())) {
-				this->asteroids[i]->setPosition(rand() % this->okno->getSize().x, rand() % this->okno->getSize().y);
-			}
-		}
-	}*/
 }
 
 void SilnikGry::stworzTlo()
@@ -95,6 +75,9 @@ void SilnikGry::stworzDzwieki()
 		sound_boom.setVolume(50.f);
 	}
 	if (!buffer_money.loadFromFile("sounds/money.ogg")) {
+		cout << "Error: Sound not load!" << endl;
+	}
+	if (!buffer_effect.loadFromFile("sounds/power.ogg")) {
 		cout << "Error: Sound not load!" << endl;
 	}
 }
@@ -156,7 +139,8 @@ void SilnikGry::updatePollEvents()
 			this->okno->close();
 		if (e.Event::KeyPressed && e.Event::key.code == Keyboard::Escape)
 			this->okno->close();
-		if (e.Event::KeyPressed && e.Event::key.code == Mouse::Left && Mouse::isButtonPressed(Mouse::Left) && this->cooldown.asMilliseconds() > 100) {
+		//if (e.Event::KeyPressed && e.Event::key.code == Mouse::Left && Mouse::isButtonPressed(Mouse::Left) && this->cooldown.asMilliseconds() > 100) {
+		if (Mouse::isButtonPressed(Mouse::Left) && this->cooldown.asMilliseconds() > 100) {
 			this->missiles.emplace_back(new Missile("textures/missile.png", translated_pos.x - 8, translated_pos.y - this->player->getBounds().height / 2));
 			sound.setBuffer(this->buffer_shoot);
 			sound.play();
@@ -225,21 +209,31 @@ void SilnikGry::updateCollision()
 		Enemy* enemy = dynamic_cast<Enemy*>(*en);
 		for (auto mis = missiles.begin(); mis != missiles.end(); ) {
 			if ((*en)->getBounds().intersects((*mis)->getBounds())) {
-				enemy->HP -= 10 * this->power;
+				int wartosc_damage = 10 * this->power;
+				enemy->HP -= wartosc_damage;
+
 				// Usuniêcie obiektu z wektora enemies
 				if (enemy->HP <= 0) {
 					sound_boom.setBuffer(this->buffer_boom);
 					sound_boom.play();
-					if (rand() % 4 < 3) { // SZANSA NA BONUS!!!
+					if (rand() % 20 < 2) { // SZANSA NA BONUS!!!
 						this->bonuses.emplace_back(new Bonus("textures/star.png", (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
-						cout << "ELO";
 					}
 					else {
 						this->coins.emplace_back(new Coin("textures/coin.png", (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
+
 					}
+					this->indicators.emplace_back(new Indicator((*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2)+80, (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)+20, "+10$", Color(252, 194, 0, 1)));
+					this->money += 10;
 					this->explosions.emplace_back(new Boom("textures/boom.png", (*en)->getPos().x-((120-(*en)->getBounds().width)/2), (*en)->getPos().y - ((200 - (*en)->getBounds().height) / 2)));
 					delete* en;
 					en = enemies.erase(en);
+				}
+				else {
+					stringstream ind;
+					ind << "-" << wartosc_damage;
+
+					this->indicators.emplace_back(new Indicator((*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2) + 80, (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)-20, ind.str(), Color(203, 51, 51, 1)));
 				}
 				// Usuniêcie obiektu z wektora missiles
 				this->explosions.emplace_back(new Boom("textures/boom.png", (*mis)->getPos().x - ((*mis)->getBounds().width/2), (*mis)->getPos().y - ((*mis)->getBounds().height/ 2) - 22, 0.4f ));
@@ -271,20 +265,29 @@ void SilnikGry::updateCollision()
 		//MONETA
 		for (auto* el : this->coins) {
 			if (el->getBounds().intersects(this->player->getBounds())) {
+				this->indicators.emplace_back(new Indicator(el->getPos().x+25, el->getPos().y, "+5$", Color(252, 194, 0, 1)));
 				coins.erase(std::remove(coins.begin(), coins.end(), el), coins.end());
 				delete el;
 				this->money += 5;
-				sound_money.setBuffer(this->buffer_money);
-				sound_money.play();
+				if (this->sounds_money.size() > 5) {
+					this->sounds_money.erase(this->sounds_money.begin());
+				}
+				Sound* dzwiek = new Sound;
+				this->sounds_money.emplace_back(dzwiek);
+				(*this->sounds_money.back()).setBuffer(this->buffer_money);
+				(*this->sounds_money.back()).play();
 			}
 		}
 
 		//BONUS
 		for (auto* el : this->bonuses) {
 			if (el->getBounds().intersects(this->player->getBounds())) {
+				this->indicators.emplace_back(new Indicator(el->getPos().x + 25, el->getPos().y, "+POWER", Color(134, 249, 86, 1)));
 				bonuses.erase(std::remove(bonuses.begin(), bonuses.end(), el), bonuses.end());
 				delete el;
 				this->power++;
+				sound_effect.setBuffer(this->buffer_effect);
+				sound_effect.play();
 			}
 		}
 
@@ -313,9 +316,10 @@ void SilnikGry::updateCollision()
 			bool collisionDetected = false;
 			Enemy* enemy = dynamic_cast<Enemy*>(*en);
 			if ((*en)->getBounds().intersects(this->player->getBounds())) {
-				enemy->HP -= 10;
+				enemy->HP -= 50;
 				this->explosions.emplace_back(new Boom("textures/boom.png", player->getPos().x - player->getBounds().width / 2, player->getPos().y - player->getBounds().height / 2));
-				this->HP -= 10;
+				this->HP -= 50;
+				this->indicators.emplace_back(new Indicator(player->getPos().x + 80, player->getPos().y -20, "-50HP", Color(203, 51, 51, 1)));
 				if (enemy->HP <= 0) {
 					sound_boom.setBuffer(this->buffer_boom);
 					sound_boom.play();
@@ -367,6 +371,14 @@ void SilnikGry::update()
 	for (auto el : this->bonuses) {
 		el->update();
 	}
+	for (auto el : this->indicators) {
+		el->update();
+		if (el->getCzas() >= el->getCzasTrwania()){
+			indicators.erase(std::remove(indicators.begin(), indicators.end(), el), indicators.end());
+		}
+	}
+
+
 	if (frame > 960) { frame = 0; }
 	this->spriteTlo.setTextureRect(IntRect(0, 480 - int(frame / 2), 1280,720));
 
@@ -381,6 +393,7 @@ void SilnikGry::update()
 			}
 		}
 	}
+
 }
 
 void SilnikGry::renderGui()
@@ -409,17 +422,23 @@ void SilnikGry::render()
 	for (auto el : this->bonuses) {
 		el->render(this->okno);
 	}
+	
+
 	for (auto asset = enemies.begin(); asset != enemies.end();) {
 		if (Enemy* enemy = dynamic_cast<Enemy*>(*asset)) {
 			enemy->render(this->okno);
 		}
 		++asset;
 	}
+	
 
 	this->player->render(this->okno);
 
 
 	for (auto el : this->explosions) {
+		el->render(this->okno);
+	}
+	for (auto el : this->indicators) {
 		el->render(this->okno);
 	}
 
@@ -432,20 +451,32 @@ void SilnikGry::rozgrywka()
 	if (flaga == 0 && time.asSeconds() > 1) {
 		flaga++;
 		for (int i = 0; i < 4; i++) {
-			this->asteroids.emplace_back(new Asteroid("textures/asteroid.png", rand() % this->okno->getSize().x - 100, (rand() % this->okno->getSize().y)/4));
+			this->asteroids.emplace_back(new Asteroid("textures/asteroid.png", rand() % (this->okno->getSize().x - 200) + 100, rand()%(this->okno->getSize().y /4) ));
 
 			
-			for (int j = 0; j < i; j++) {
+			/*for (int j = 0; j < i; j++) {
 				while (this->asteroids[j]->getBounds().intersects(this->asteroids[i]->getBounds()) || this->asteroids[j]->getBounds().intersects(this->player->getBounds())) {
-					this->asteroids[i]->setPosition(rand() % this->okno->getSize().x - 100, (rand() % this->okno->getSize().y)/4);
+					this->asteroids[i]->setPosition(rand() % (this->okno->getSize().x - 200) + 100, (rand() % this->okno->getSize().y) / 4);
 				}
-			}
+			}*/
 		}
 	}
 	if (flaga == 1 && time.asSeconds() > 4) {
 		flaga++;
 		for (int i = 0; i < 4; i++) {
 			this->enemies.emplace_back(new Enemy("textures/enemy.png", rand() % (this->okno->getSize().x-200) + 100, (rand() % this->okno->getSize().y) / 4));
+
+			for (int j = 0; j < i; j++) {
+				while (this->enemies[j]->getBounds().intersects(this->enemies[i]->getBounds()) || this->enemies[j]->getBounds().intersects(this->player->getBounds())) {
+					this->enemies[i]->setPosition(rand() % (this->okno->getSize().x - 200) + 100, (rand() % this->okno->getSize().y) / 4);
+				}
+			}
+		}
+	}
+	if (flaga == 2 && time.asSeconds() > 8) {
+		flaga++;
+		for (int i = 0; i < 8; i++) {
+			this->enemies.emplace_back(new Enemy("textures/enemy.png", rand() % (this->okno->getSize().x - 200) + 100, (rand() % this->okno->getSize().y) / 4));
 
 			for (int j = 0; j < i; j++) {
 				while (this->enemies[j]->getBounds().intersects(this->enemies[i]->getBounds()) || this->enemies[j]->getBounds().intersects(this->player->getBounds())) {

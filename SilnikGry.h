@@ -15,6 +15,7 @@
 #include "Boom.h"
 #include "Enemy.h"
 #include "Bonus.h"
+#include "Indicator.h"
 
 #include <string>
 #include <sstream>
@@ -49,6 +50,7 @@ private:
 	vector<AnimowaneAssety*> explosions;
 	vector<AnimowaneAssety*> enemies;
 	vector<AnimowaneAssety*> bonuses;
+	
 
 	//System
 	void stworzokno();
@@ -63,15 +65,20 @@ private:
 	Text zdrowie;
 	Text sila;
 
+	vector<Indicator*> indicators;
+
 	RectangleShape rectangle;
 	RectangleShape HP_bar;
 
 	Sound sound;
 	Sound sound_boom;
-	Sound sound_money;
+	Sound sound_effect;
 	SoundBuffer buffer_shoot;
 	SoundBuffer buffer_boom;
 	SoundBuffer buffer_money;
+	SoundBuffer buffer_effect;
+
+	vector<Sound*> sounds_money;
 
 	int HP = 100;
 	int money = 0;

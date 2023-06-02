@@ -5,6 +5,12 @@ Missile::Missile(string file, float x, float y) : AnimowaneAssety(file,x,y)
 	this->sprite.scale(0.5f, 0.5f);
 }
 
+Missile::Missile(string file, float x, float y, float speed) : AnimowaneAssety(file,x,y)
+{
+	this->sprite.scale(0.5f, 0.5f);
+	this->movementSpeed = speed;
+}
+
 Missile::~Missile()
 {
 }

@@ -27,9 +27,12 @@ Enemy::~Enemy()
 void Enemy::update()
 {
 	this->sprite.move(x_speed,y_speed);
-	this->rectangle.move(x_speed, y_speed);
-	this->HP_bar.move(x_speed, y_speed);
 
+	rectangle.setPosition(
+		this->sprite.getPosition().x + ((this->sprite.getGlobalBounds().width - this->rectangle.getGlobalBounds().width) / 2),
+		this->sprite.getPosition().y - 10
+	);
+	HP_bar.setPosition(rectangle.getPosition().x, rectangle.getPosition().y);
 	
 
     if (this->sprite.getPosition().x < 0 || this->sprite.getPosition().x + this->sprite.getGlobalBounds().width > 1280) {
@@ -46,4 +49,5 @@ void Enemy::render(RenderTarget* target)
 	target->draw(this->sprite);
 	target->draw(this->rectangle);
 	target->draw(this->HP_bar);
+	
 }

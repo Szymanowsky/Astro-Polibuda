@@ -11,6 +11,9 @@ protected:
 
 	RectangleShape rectangle;
 	RectangleShape HP_bar;
+
+	Clock clock;
+	float czasTrwania = 2.f;
 public:
 	Enemy(string file, float x, float y);
 	~Enemy();
