@@ -15,6 +15,8 @@ protected:
 	Sprite sprite;
 	Texture texture;
 
+	Clock clock;
+
 	float movementSpeed = 5;
 public:
 	AnimowaneAssety(Texture* texture, float x, float y);

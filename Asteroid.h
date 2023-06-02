@@ -12,8 +12,6 @@ public:
 	Asteroid(Texture* texture, float x, float y);
 	~Asteroid();
 
-	int frame = rand() % 1024;
-	
 	void update(float& dt);
 
 };

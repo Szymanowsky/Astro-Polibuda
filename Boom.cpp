@@ -26,7 +26,6 @@ float Boom::getCzas()
 
 void Boom::update(float& dt)
 {
-	frame += 1;
-	if (frame > 42) { frame = 0; }
-	this->sprite.setTextureRect(IntRect(126*int(frame / 6), 20, 120, 160));
+	if (this->clock.getElapsedTime().asMilliseconds() > 699) { clock.restart(); }
+	this->sprite.setTextureRect(IntRect(126 * int(this->clock.getElapsedTime().asMilliseconds()/60), 20, 120, 160));
 }

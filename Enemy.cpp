@@ -26,7 +26,7 @@ Enemy::~Enemy()
 
 void Enemy::update(float& dt)
 {
-	this->sprite.move(x_speed,y_speed);
+	this->sprite.move(x_speed * dt / 16, y_speed * dt / 16);
 
 	rectangle.setPosition(
 		this->sprite.getPosition().x + ((this->sprite.getGlobalBounds().width - this->rectangle.getGlobalBounds().width) / 2),

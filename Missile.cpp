@@ -17,7 +17,7 @@ Missile::~Missile()
 
 void Missile::update(float& dt)
 {
-	this->sprite.move(0,-(this->movementSpeed));
+	this->sprite.move(0,-(this->movementSpeed) * dt / 16);
 
 	frame += 1;
 	if (frame > 15) { frame = 0; }

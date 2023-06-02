@@ -45,6 +45,8 @@ private:
 	Time delta_time;
 	float dt;
 
+	Clock bonus_clock;
+
 	//Zmienne kontrolne
 	Clock cooldown_clock;
 	bool stopper;
@@ -60,7 +62,10 @@ private:
 	vector<AnimowaneAssety*> explosions;
 	vector<AnimowaneAssety*> enemies;
 	vector<AnimowaneAssety*> enemies_2;
-	vector<AnimowaneAssety*> bonuses;
+	vector<AnimowaneAssety*> bonuses_power;
+	vector<AnimowaneAssety*> bonuses_health;
+	vector<AnimowaneAssety*> bonuses_x2;
+	vector<AnimowaneAssety*> bonuses_rof;
 	
 
 	//System
@@ -76,6 +81,8 @@ private:
 	Text punkty;
 	Text zdrowie;
 	Text sila;
+	Text ROF;
+	Text BonusX2;
 
 	vector<Indicator*> indicators;
 
@@ -96,8 +103,10 @@ private:
 	int money = 0;
 	int power = 1;
 	int mnoznik = 1;
+	int rof = 10;
 	int frame;
 	int flaga = 0;
+	int szansa = 2; // 20 - 100%  <-- 10 - 50% -->   0 - 0%
 
 public:
 	SilnikGry();

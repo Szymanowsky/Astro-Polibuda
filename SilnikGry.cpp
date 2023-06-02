@@ -4,7 +4,7 @@ void SilnikGry::stworzOkno()
 {
 	this->okno = new RenderWindow(VideoMode(1280, 720), "Game", Style::Close | Style::Titlebar);
 	this->okno->setActive(true);
-	this->okno->setFramerateLimit(60);
+	this->okno->setFramerateLimit(400);
 	this->okno->setKeyRepeatEnabled(false);
 	this->okno->setMouseCursorGrabbed(true);
 	this->okno->setMouseCursorVisible(false);
@@ -25,8 +25,17 @@ void SilnikGry::stworzTekstury()
 	this->textures["coin"] = new Texture;
 	this->textures["coin"]->loadFromFile("textures/coin.png");
 
-	this->textures["star"] = new Texture;
-	this->textures["star"]->loadFromFile("textures/star.png");
+	this->textures["power"] = new Texture;
+	this->textures["power"]->loadFromFile("textures/power.png");
+
+	this->textures["heart"] = new Texture;
+	this->textures["heart"]->loadFromFile("textures/heart.png");
+
+	this->textures["x2"] = new Texture;
+	this->textures["x2"]->loadFromFile("textures/x2.png");
+
+	this->textures["speed"] = new Texture;
+	this->textures["speed"]->loadFromFile("textures/speed.png");
 
 	this->textures["boom"] = new Texture;
 	this->textures["boom"]->loadFromFile("textures/boom.png");
@@ -61,6 +70,16 @@ void SilnikGry::stworzGui()
 	this->sila.setCharacterSize(24);
 	this->sila.setFillColor(Color::Yellow);
 	this->sila.setStyle(sf::Text::Bold);
+
+	this->ROF.setPosition(20, 606);
+	this->ROF.setFont(this->font);
+	this->ROF.setCharacterSize(24);
+	this->ROF.setFillColor(Color::Yellow);
+	this->ROF.setStyle(sf::Text::Bold);
+
+	this->BonusX2.setFont(this->font);
+	this->BonusX2.setCharacterSize(42);
+	this->BonusX2.setFillColor(Color(255,255,255,0));
 
 	this->rectangle.setSize(sf::Vector2f(200, 20));
 	this->rectangle.setFillColor(sf::Color::White);
@@ -130,9 +149,6 @@ void SilnikGry::run()
 {
 	while (this->okno->isOpen())
 	{
-		delta_time = delta_clock.restart();
-		float dt = delta_time.asSeconds();
-
 		this->updatePollEvents();
 		this->update();
 		this->render();
@@ -172,7 +188,7 @@ void SilnikGry::updatePollEvents()
 		if (e.Event::KeyPressed && e.Event::key.code == Keyboard::Escape)
 			this->okno->close();
 	}
-	if (Mouse::isButtonPressed(Mouse::Left) && this->cooldown.asMilliseconds() > 50) {
+	if (Mouse::isButtonPressed(Mouse::Left) && this->cooldown.asMilliseconds() > 2000/this->rof) {
 		this->missiles.emplace_back(new Missile(this->textures["missile"], translated_pos.x - 8, translated_pos.y - this->player->getBounds().height / 2));
 		sound.setBuffer(this->buffer_shoot);
 		sound.play();
@@ -195,6 +211,20 @@ void SilnikGry::updateGui()
 	power << "Power: " << this->power;
 	this->sila.setString(power.str());
 
+	stringstream rof_text;
+	rof_text << "ROF: " << this->rof;
+	this->ROF.setString(rof_text.str());
+
+	stringstream bonus_text;
+	bonus_text << "MONEY x2: " << 20-int(this->bonus_clock.getElapsedTime().asSeconds()) << " SECONDS";
+
+	this->BonusX2.setString(bonus_text.str());
+	this->BonusX2.setPosition(
+		this->okno->getSize().x / 2 - BonusX2.getGlobalBounds().width / 2,
+		(this->okno->getSize().y / 2 - BonusX2.getGlobalBounds().height / 2)/8
+	);
+	cout << BonusX2.getPosition().x << "  " << BonusX2.getPosition().y << endl;
+
 	this->HP_bar.setSize(sf::Vector2f(2*(this->HP), 20));
 
 	if (this->HP < 0) { this->HP = 0; }
@@ -208,7 +238,7 @@ void SilnikGry::updateCollision()
 		bool collisionDetected = false;
 
 		for (auto mis = missiles.begin(); mis != missiles.end(); ) {
-			if ((*ast)->getBounds().intersects((*mis)->getBounds())) {
+			if ((*ast)->getBounds().intersects((*mis)->getBounds()) && time.asSeconds() > 2) {
 				sound_boom.setBuffer(this->buffer_boom);
 				sound_boom.play();
 				
@@ -247,12 +277,20 @@ void SilnikGry::updateCollision()
 				if (enemy->HP <= 0) {
 					sound_boom.setBuffer(this->buffer_boom);
 					sound_boom.play();
-					if (rand() % 20 < 2) { // SZANSA NA BONUS!!!
-						this->bonuses.emplace_back(new Bonus(this->textures["star"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
+					if (rand() % 20 < this->szansa) { // SZANSA NA BONUS!!!
+						this->bonuses_power.emplace_back(new Bonus(this->textures["power"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
+					}
+					else if (rand() % 20 < this->szansa) {
+						this->bonuses_health.emplace_back(new Bonus(this->textures["heart"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
+					}
+					else if (rand() % 20 < this->szansa) {
+						this->bonuses_rof.emplace_back(new Bonus(this->textures["speed"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
+					}
+					else if (rand() % 20 < this->szansa) {
+						this->bonuses_x2.emplace_back(new Bonus(this->textures["x2"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
 					}
 					else {
 						this->coins.emplace_back(new Coin(this->textures["coin"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
-
 					}
 					int wartosc_money = 10 * this->mnoznik;
 
@@ -303,12 +341,20 @@ void SilnikGry::updateCollision()
 				if (enemy->HP <= 0) {
 					sound_boom.setBuffer(this->buffer_boom);
 					sound_boom.play();
-					if (rand() % 20 < 2) { // SZANSA NA BONUS!!!
-						this->bonuses.emplace_back(new Bonus(this->textures["star"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
+					if (rand() % 20 < this->szansa) { // SZANSA NA BONUS!!!
+						this->bonuses_power.emplace_back(new Bonus(this->textures["power"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
+					}
+					else if (rand() % 20 < this->szansa) {
+						this->bonuses_health.emplace_back(new Bonus(this->textures["heart"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
+					}
+					else if (rand() % 20 < this->szansa) {
+						this->bonuses_rof.emplace_back(new Bonus(this->textures["speed"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
+					}
+					else if (rand() % 20 < this->szansa) {
+						this->bonuses_x2.emplace_back(new Bonus(this->textures["x2"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
 					}
 					else {
 						this->coins.emplace_back(new Coin(this->textures["coin"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
-
 					}
 					int wartosc_money = 20 * this->mnoznik;
 
@@ -359,10 +405,15 @@ void SilnikGry::updateCollision()
 		//MONETA
 		for (auto* el : this->coins) {
 			if (el->getBounds().intersects(this->player->getBounds())) {
-				this->indicators.emplace_back(new Indicator(el->getPos().x+25, el->getPos().y, "+5$", Color(252, 194, 0, 1)));
+
+				int wartosc_money = 5 * this->mnoznik;
+				stringstream ind;
+				ind << "+" << wartosc_money;
+
+				this->indicators.emplace_back(new Indicator(el->getPos().x+25, el->getPos().y, ind.str(), Color(252, 194, 0, 1)));
 				coins.erase(std::remove(coins.begin(), coins.end(), el), coins.end());
 				delete el;
-				this->money += 5;
+				this->money += 5*this->mnoznik;;
 				if (this->sounds_money.size() > 5) {
 					this->sounds_money.erase(this->sounds_money.begin());
 				}
@@ -374,16 +425,54 @@ void SilnikGry::updateCollision()
 		}
 
 		//BONUS
-		for (auto* el : this->bonuses) {
+		for (auto* el : this->bonuses_power) {
 			if (el->getBounds().intersects(this->player->getBounds())) {
 				this->indicators.emplace_back(new Indicator(el->getPos().x + 25, el->getPos().y, "+POWER", Color(134, 249, 86, 1)));
-				bonuses.erase(std::remove(bonuses.begin(), bonuses.end(), el), bonuses.end());
+				bonuses_power.erase(std::remove(bonuses_power.begin(), bonuses_power.end(), el), bonuses_power.end());
 				delete el;
 				this->power++;
 				sound_effect.setBuffer(this->buffer_effect);
 				sound_effect.play();
 			}
 		}
+
+		for (auto* el : this->bonuses_health) {
+			if (el->getBounds().intersects(this->player->getBounds())) {
+				this->indicators.emplace_back(new Indicator(el->getPos().x + 25, el->getPos().y, "+25HP", Color(134, 249, 86, 1)));
+				bonuses_health.erase(std::remove(bonuses_health.begin(), bonuses_health.end(), el), bonuses_health.end());
+				delete el;
+				this->HP += 25;
+				if (this->HP > 100) { this->HP = 100; }
+				sound_effect.setBuffer(this->buffer_effect);
+				sound_effect.play();
+			}
+		}
+
+		for (auto* el : this->bonuses_rof) {
+			if (el->getBounds().intersects(this->player->getBounds())) {
+				this->indicators.emplace_back(new Indicator(el->getPos().x + 25, el->getPos().y, "+5ROF", Color(134, 249, 86, 1)));
+				bonuses_rof.erase(std::remove(bonuses_rof.begin(), bonuses_rof.end(), el), bonuses_rof.end());
+				delete el;
+				this->rof += 5;
+				sound_effect.setBuffer(this->buffer_effect);
+				sound_effect.play();
+			}
+		}
+
+		for (auto* el : this->bonuses_x2) {
+			if (el->getBounds().intersects(this->player->getBounds())) {
+				this->indicators.emplace_back(new Indicator(el->getPos().x + 25, el->getPos().y, "+BONUS", Color(134, 249, 86, 1)));
+				bonuses_x2.erase(std::remove(bonuses_x2.begin(), bonuses_x2.end(), el), bonuses_x2.end());
+				delete el;
+				this->mnoznik = 2;
+				this->BonusX2.setFillColor(Color(255, 255, 255, 128));
+				this->bonus_clock.restart();
+				sound_effect.setBuffer(this->buffer_effect);
+				sound_effect.play();
+			}
+		}
+
+		
 
 		//ASTEROIDA 
 		for (auto* ast : this->asteroids) {
@@ -442,11 +531,16 @@ void SilnikGry::updateCollision()
 
 void SilnikGry::update()
 {
+	delta_time = delta_clock.restart();
+	float dt = delta_time.asMilliseconds();
+
 	this->frame++;
 
+	cout << dt << endl;
 
 	this->updateGui();
 	this->updateCollision();
+
 	this->player->update(dt);
 
 	for (auto el : this->coins) {
@@ -467,7 +561,16 @@ void SilnikGry::update()
 	for (auto el : this->enemies_2) {
 		el->update(dt);
 	}
-	for (auto el : this->bonuses) {
+	for (auto el : this->bonuses_power) {
+		el->update(dt);
+	}
+	for (auto el : this->bonuses_health) {
+		el->update(dt);
+	}
+	for (auto el : this->bonuses_rof) {
+		el->update(dt);
+	}
+	for (auto el : this->bonuses_x2) {
 		el->update(dt);
 	}
 	for (auto el : this->indicators) {
@@ -477,9 +580,15 @@ void SilnikGry::update()
 		}
 	}
 
+	if (this->bonus_clock.getElapsedTime().asSeconds() > 20 && this->mnoznik != 1) {
+		this->mnoznik = 1;
+		this->BonusX2.setFillColor(Color(255, 255, 255, 0));
+	}
+
 
 	if (frame > 960) { frame = 0; }
 	this->spriteTlo.setTextureRect(IntRect(0, 480 - int(frame / 2), 1280,720));
+
 
 	for (auto asset = explosions.begin(); asset != explosions.end();) {
 		// SprawdŸ, czy wskaŸnik wskazuje na obiekt klasy Boom
@@ -500,6 +609,8 @@ void SilnikGry::renderGui()
 	this->okno->draw(this->punkty);
 	this->okno->draw(this->zdrowie);
 	this->okno->draw(this->sila);
+	this->okno->draw(this->ROF);
+	this->okno->draw(this->BonusX2);
 	this->okno->draw(this->rectangle);
 	this->okno->draw(this->HP_bar);
 }
@@ -518,7 +629,16 @@ void SilnikGry::render()
 	for (auto el : this->missiles) {
 		el->render(this->okno);
 	}
-	for (auto el : this->bonuses) {
+	for (auto el : this->bonuses_power) {
+		el->render(this->okno);
+	}
+	for (auto el : this->bonuses_health) {
+		el->render(this->okno);
+	}
+	for (auto el : this->bonuses_rof) {
+		el->render(this->okno);
+	}
+	for (auto el : this->bonuses_x2) {
 		el->render(this->okno);
 	}
 	
