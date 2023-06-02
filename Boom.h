@@ -10,6 +10,7 @@ private:
 	float czasTrwania = 460.f; // Czas trwania "boomu" (w sekundach)
 public:
 	Boom(string file, float x, float y);
+	Boom(string file, float x, float y, float scale);
 	~Boom();
 
 	float getCzasTrwania();

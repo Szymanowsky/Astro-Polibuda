@@ -5,6 +5,11 @@ Boom::Boom(string file, float x, float y) : AnimowaneAssety(file,x,y)
 	this->sprite.scale(1.f,1.f);
 }
 
+Boom::Boom(string file, float x, float y, float scale) : AnimowaneAssety(file, x, y)
+{
+	this->sprite.scale(scale, scale);
+}
+
 Boom::~Boom()
 {
 }
@@ -23,6 +28,5 @@ void Boom::update()
 {
 	frame += 1;
 	if (frame > 42) { frame = 0; }
-	this->sprite.setTextureRect(IntRect(126*int(frame / 6), 0, 120, 200));
-	
+	this->sprite.setTextureRect(IntRect(126*int(frame / 6), 20, 120, 160));
 }

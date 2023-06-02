@@ -85,7 +85,6 @@ public:
 	void run();
 
 	void updatePollEvents();
-	void updateInput();
 	void updateGui();
 	void updateCollision();
 	void update();

@@ -97,10 +97,6 @@ void SilnikGry::stworzDzwieki()
 	if (!buffer_money.loadFromFile("sounds/money.ogg")) {
 		cout << "Error: Sound not load!" << endl;
 	}
-	/*
-	if (!buffer_shoot.loadFromFile("sounds/shoot.ogg")) {
-		cout << "Error: Sound not load!" << endl;
-	}*/
 }
 
 
@@ -171,23 +167,6 @@ void SilnikGry::updatePollEvents()
 	}
 }
 
-void SilnikGry::updateInput()
-{
-	/*if (Keyboard::isKeyPressed(Keyboard::A))
-		this->gracz->move(-1.f, 0.f);
-	if (Keyboard::isKeyPressed(Keyboard::D))
-		this->gracz->move(1.f, 0.f);
-	if (Keyboard::isKeyPressed(Keyboard::W))
-		this->gracz->move(0.f, -1.f);
-	if (Keyboard::isKeyPressed(Keyboard::S))
-		this->gracz->move(0.f, 1.f);*/
-
-	//RUCH MYSZKI
-	/*auto mouse_pos = Mouse::getPosition(*okno);
-	auto translated_pos = this->okno->mapPixelToCoords(mouse_pos);*/
-	
-}
-
 
 void SilnikGry::updateGui()
 {
@@ -210,31 +189,8 @@ void SilnikGry::updateGui()
 
 void SilnikGry::updateCollision()
 {
-	/*for (auto* mis : this->missiles)
-	{
-		for (auto *ast : this->asteroids) {
-			if (ast->getBounds().intersects(mis->getBounds())) {
-				//missiles.erase(std::remove(missiles.begin(), missiles.end(), mis), missiles.end());
-				//delete mis;
-				asteroids.erase(std::remove(asteroids.begin(), asteroids.end(), ast), asteroids.end());
-				delete ast;
-				sound_boom.setBuffer(this->buffer_boom);
-				sound_boom.play();
-				break;
-			}
-		}
-		if (mis->getPos().y < -20) {
-			auto it = std::find(missiles.begin(), missiles.end(), mis);  //  D£UØSZA METODA
-			if (it != missiles.end()) {
-				missiles.erase(it);
-				delete mis;
-			}
-			
-			missiles.erase(std::remove(missiles.begin(), missiles.end(), mis), missiles.end());
-			delete mis;
-		}
-	}*/
 
+	//ASTEROIDA + POCISK
 	for (auto ast = asteroids.begin(); ast != asteroids.end(); ) {
 		bool collisionDetected = false;
 
@@ -263,13 +219,13 @@ void SilnikGry::updateCollision()
 			++ast;
 		}
 	}
-
+	//PRZECIWNIK + POCISK
 	for (auto en = enemies.begin(); en != enemies.end(); ) {
 		bool collisionDetected = false;
 		Enemy* enemy = dynamic_cast<Enemy*>(*en);
 		for (auto mis = missiles.begin(); mis != missiles.end(); ) {
 			if ((*en)->getBounds().intersects((*mis)->getBounds())) {
-				enemy->HP -= 10;
+				enemy->HP -= 10 * this->power;
 				// UsuniÍcie obiektu z wektora enemies
 				if (enemy->HP <= 0) {
 					sound_boom.setBuffer(this->buffer_boom);
@@ -280,6 +236,7 @@ void SilnikGry::updateCollision()
 					en = enemies.erase(en);
 				}
 				// UsuniÍcie obiektu z wektora missiles
+				this->explosions.emplace_back(new Boom("textures/boom.png", (*mis)->getPos().x - ((*mis)->getBounds().width/2), (*mis)->getPos().y - ((*mis)->getBounds().height/ 2) - 22, 0.4f ));
 				delete* mis;
 				mis = missiles.erase(mis);
 				collisionDetected = true;
@@ -294,22 +251,7 @@ void SilnikGry::updateCollision()
 			++en;
 		}
 	}
-
-	/*
-	for (auto asset = explosions.begin(); asset != explosions.end();) {
-		// Sprawdü, czy wskaünik wskazuje na obiekt klasy Boom
-		if (Boom *boom = dynamic_cast<Boom*>(*asset)) {
-			if (boom->getCzas() >= boom->getCzasTrwania()) {
-				asset = explosions.erase(asset);
-			}
-			else {
-				++asset;
-			}
-		}
-	}
-	*/
-
-	
+	//POCISK
 	for (auto mis = missiles.begin(); mis != missiles.end(); ) {
         if ((*mis)->getPos().y < -20) {
             delete *mis;
@@ -320,6 +262,7 @@ void SilnikGry::updateCollision()
     }
 
 	if (time.asSeconds() > 2){
+		//MONETA
 		for (auto* el : this->coins) {
 			if (el->getBounds().intersects(this->player->getBounds())) {
 				coins.erase(std::remove(coins.begin(), coins.end(), el), coins.end());
@@ -330,11 +273,13 @@ void SilnikGry::updateCollision()
 			}
 		}
 
+		//ASTEROIDA 
 		for (auto* ast : this->asteroids) {
 			if (ast->getPos().y > 720 + ast->getBounds().height) {
 				asteroids.erase(std::remove(asteroids.begin(), asteroids.end(), ast), asteroids.end());
 				delete ast;
 			}
+			//ASTEROIDA + GRACZ
 			else if (ast->getBounds().intersects(this->player->getBounds())) {
 				this->explosions.emplace_back(new Boom("textures/boom.png", player->getPos().x-player->getBounds().width/2, player->getPos().y - player->getBounds().height / 2));
 				asteroids.erase(std::remove(asteroids.begin(), asteroids.end(), ast), asteroids.end());
@@ -349,18 +294,46 @@ void SilnikGry::updateCollision()
 				sound_boom.play();
 			}
 		}
+		for (auto en = enemies.begin(); en != enemies.end(); ) {
+			bool collisionDetected = false;
+			Enemy* enemy = dynamic_cast<Enemy*>(*en);
+			if ((*en)->getBounds().intersects(this->player->getBounds())) {
+				enemy->HP -= 10;
+				this->explosions.emplace_back(new Boom("textures/boom.png", player->getPos().x - player->getBounds().width / 2, player->getPos().y - player->getBounds().height / 2));
+				this->HP -= 10;
+				if (enemy->HP <= 0) {
+					sound_boom.setBuffer(this->buffer_boom);
+					sound_boom.play();
+					this->coins.emplace_back(new Coin("textures/coin.png", (*en)->getPos().x, (*en)->getPos().y));
+					this->explosions.emplace_back(new Boom("textures/boom.png", (*en)->getPos().x - ((120 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((200 - (*en)->getBounds().height) / 2)));
+					delete* en;
+					en = enemies.erase(en);
+				}
+				Vector2i start_position(this->okno->getSize().x / 2 - this->player->getBounds().width / 2,
+					this->okno->getSize().y / 2 - this->player->getBounds().height / 2 + 260);
+				Mouse::setPosition(start_position, *this->okno);
+
+				sound_boom.setBuffer(this->buffer_boom);
+				sound_boom.play();
+
+				collisionDetected = true;
+				break;
+			}
+			if (!collisionDetected) {
+				++en;
+			}
+		}
 	}
 }
 
 void SilnikGry::update()
 {
 	this->frame++;
-	//cout << time.asSeconds() << endl;
 
-	this->updateInput();
 	this->updateGui();
 	this->updateCollision();
 	this->player->update();
+
 	for (auto el : this->coins) {
 		el->update();
 	}
@@ -453,12 +426,11 @@ void SilnikGry::rozgrywka()
 		for (int i = 0; i < 4; i++) {
 			this->enemies.emplace_back(new Enemy("textures/enemy.png", rand() % this->okno->getSize().x - 100, (rand() % this->okno->getSize().y) / 4));
 
-			/*for (int j = 0; j < i; j++) {
+			for (int j = 0; j < i; j++) {
 				while (this->enemies[j]->getBounds().intersects(this->enemies[i]->getBounds()) || this->enemies[j]->getBounds().intersects(this->player->getBounds())) {
 					this->enemies[i]->setPosition(rand() % this->okno->getSize().x - 100, (rand() % this->okno->getSize().y) / 4);
-				
-			}*/
+				}
+			}
 		}
-
 	}
 }

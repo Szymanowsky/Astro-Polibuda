@@ -30,6 +30,7 @@ void Enemy::update()
 	this->rectangle.move(x_speed, y_speed);
 	this->HP_bar.move(x_speed, y_speed);
 
+	
 
     if (this->sprite.getPosition().x < 0 || this->sprite.getPosition().x + this->sprite.getGlobalBounds().width > 1280) {
         this->x_speed *= -1;
@@ -45,5 +46,4 @@ void Enemy::render(RenderTarget* target)
 	target->draw(this->sprite);
 	target->draw(this->rectangle);
 	target->draw(this->HP_bar);
-	cout << sprite.getGlobalBounds().width << "   " << sprite.getGlobalBounds().height << endl;
 }
