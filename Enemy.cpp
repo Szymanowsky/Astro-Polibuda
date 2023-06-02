@@ -45,4 +45,5 @@ void Enemy::render(RenderTarget* target)
 	target->draw(this->sprite);
 	target->draw(this->rectangle);
 	target->draw(this->HP_bar);
+	cout << sprite.getGlobalBounds().width << "   " << sprite.getGlobalBounds().height << endl;
 }

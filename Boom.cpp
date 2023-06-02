@@ -24,4 +24,5 @@ void Boom::update()
 	frame += 1;
 	if (frame > 42) { frame = 0; }
 	this->sprite.setTextureRect(IntRect(126*int(frame / 6), 0, 120, 200));
+	
 }

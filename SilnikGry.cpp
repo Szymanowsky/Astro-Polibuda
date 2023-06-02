@@ -264,6 +264,51 @@ void SilnikGry::updateCollision()
 		}
 	}
 
+	for (auto en = enemies.begin(); en != enemies.end(); ) {
+		bool collisionDetected = false;
+		Enemy* enemy = dynamic_cast<Enemy*>(*en);
+		for (auto mis = missiles.begin(); mis != missiles.end(); ) {
+			if ((*en)->getBounds().intersects((*mis)->getBounds())) {
+				enemy->HP -= 10;
+				// UsuniÍcie obiektu z wektora enemies
+				if (enemy->HP <= 0) {
+					sound_boom.setBuffer(this->buffer_boom);
+					sound_boom.play();
+					this->coins.emplace_back(new Coin("textures/coin.png", (*mis)->getPos().x, (*mis)->getPos().y));
+					this->explosions.emplace_back(new Boom("textures/boom.png", (*en)->getPos().x-((120-(*en)->getBounds().width)/2), (*en)->getPos().y - ((200 - (*en)->getBounds().height) / 2)));
+					delete* en;
+					en = enemies.erase(en);
+				}
+				// UsuniÍcie obiektu z wektora missiles
+				delete* mis;
+				mis = missiles.erase(mis);
+				collisionDetected = true;
+
+				break;
+			}
+			else {
+				++mis;
+			}
+		}
+		if (!collisionDetected) {
+			++en;
+		}
+	}
+
+	/*
+	for (auto asset = explosions.begin(); asset != explosions.end();) {
+		// Sprawdü, czy wskaünik wskazuje na obiekt klasy Boom
+		if (Boom *boom = dynamic_cast<Boom*>(*asset)) {
+			if (boom->getCzas() >= boom->getCzasTrwania()) {
+				asset = explosions.erase(asset);
+			}
+			else {
+				++asset;
+			}
+		}
+	}
+	*/
+
 	
 	for (auto mis = missiles.begin(); mis != missiles.end(); ) {
         if ((*mis)->getPos().y < -20) {
