@@ -292,7 +292,7 @@ void SilnikGry::updatePollEvents()
 				wstep = 0;
 				this->okno->setMouseCursorGrabbed(true);
 				this->okno->setMouseCursorVisible(false);
-				cout << "Zaczynamy przygodê!";
+				cout << "Zaczynamy przygode!";
 			}
 
 			updatePollEvents();
@@ -888,19 +888,19 @@ void SilnikGry::rozgrywka()
 	if (flaga == 0 && time.asSeconds() > 1) {
 		flaga++;
 		for (int i = 0; i < 4; i++) {
-			this->asteroids.emplace_back(new Asteroid(this->textures["asteroid"], rand() % (this->okno->getSize().x - 200) + 100, -200));
+			this->asteroids.emplace_back(new Asteroid(this->textures["asteroid"], rand() % (this->okno->getSize().x - 200) + 100, rand()% 800 - 1000));
 		}
 	}
-	if (flaga == 1 && time.asSeconds() > 8) {
+	if (flaga == 1 && time.asSeconds() > 8 && this->asteroids.empty()) {
 		flaga++;
 		for (int i = 0; i < 4; i++) {
-			this->enemies.emplace_back(new Enemy(this->textures["enemy"], rand() % (this->okno->getSize().x-200) + 100, -200));
+			this->enemies.emplace_back(new Enemy(this->textures["enemy"], rand() % (this->okno->getSize().x-200) + 100, rand() % 800 - 1000));
 		}
 	}
-	if (flaga == 2 && time.asSeconds() > 18) {
+	if (flaga == 2 && time.asSeconds() > 18 && this->enemies.empty()) {
 		flaga++;
 		for (int i = 0; i < 8; i++) {
-			this->enemies.emplace_back(new Enemy(this->textures["enemy_2"], rand() % (this->okno->getSize().x - 200) + 100, -200));
+			this->enemies.emplace_back(new Enemy(this->textures["enemy_2"], rand() % (this->okno->getSize().x - 200) + 100, rand() % 800 - 1000));
 
 			/*for (int j = 0; j < i; j++) { 
 				while (this->enemies[j]->getBounds().intersects(this->enemies[i]->getBounds()) || this->enemies[j]->getBounds().intersects(this->player->getBounds())) {
@@ -909,16 +909,16 @@ void SilnikGry::rozgrywka()
 			}*/  
 		}
 	}
-	if (flaga == 3 && time.asSeconds() > 24) {
+	if (flaga == 3 && time.asSeconds() > 24 && this->enemies_2.empty()) {
 		flaga++;
 		for (int i = 0; i < 4; i++) {
-			this->enemies_2.emplace_back(new Enemy(this->textures["enemy_2"], rand() % (this->okno->getSize().x - 200) + 100, -200));
+			this->enemies_2.emplace_back(new Enemy(this->textures["enemy_2"], rand() % (this->okno->getSize().x - 200) + 100, rand() % 800 - 1000));
 		}
 	}
-	if (flaga == 4 && time.asSeconds() > 32) {
+	if (flaga == 4 && time.asSeconds() > 48) {
 		flaga++;
 		for (int i = 0; i < 16; i++) {
-			this->asteroids.emplace_back(new Asteroid(this->textures["asteroid"], rand() % (this->okno->getSize().x - 200) + 100, -200));
+			this->asteroids.emplace_back(new Asteroid(this->textures["asteroid"], rand() % (this->okno->getSize().x - 200) + 100, rand() % 800 - 1000));
 		}
 	}
 }
