@@ -11,7 +11,7 @@ public:
 
 	int frame = rand() % 21;
 	
-	void update();
+	void update(float& dt);
 
 };
 

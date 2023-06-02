@@ -9,7 +9,7 @@ Asteroid::~Asteroid()
 {
 }
 
-void Asteroid::update()
+void Asteroid::update(float& dt)
 {
     this->sprite.move(this->x_speed, this->y_speed);
 

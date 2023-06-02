@@ -26,7 +26,7 @@ public:
 	void setPosition(const float x, const float y);
 	void move(const float dirX, const float dirY);
 
-	virtual void update();
+	virtual void update(float& dt);
 	void render(RenderTarget* target);
 };
 

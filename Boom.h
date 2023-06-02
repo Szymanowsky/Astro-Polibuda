@@ -17,7 +17,7 @@ public:
 	float getCzas();
 
 	int frame = rand() % 21;
-	void update();
+	void update(float& dt);
 
 };
 

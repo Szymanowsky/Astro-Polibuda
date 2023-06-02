@@ -9,7 +9,7 @@ Coin::~Coin()
 {
 }
 
-void Coin::update()
+void Coin::update(float& dt)
 {
 	this->sprite.move(0, (this->movementSpeed)/3);
 

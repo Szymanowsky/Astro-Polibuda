@@ -10,6 +10,6 @@ private:
 public:
 	Gracz(Texture* texture, float x, float y);
 	~Gracz();
-	void update();
+	void update(float& dt);
 };
 

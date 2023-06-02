@@ -39,7 +39,11 @@ private:
 
 	//Czas w grze
 	Clock clock;
+	Clock delta_clock;
+
 	Time time;
+	Time delta_time;
+	float dt;
 
 	//Zmienne kontrolne
 	Clock cooldown_clock;

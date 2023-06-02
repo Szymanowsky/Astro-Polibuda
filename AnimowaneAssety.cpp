@@ -44,7 +44,7 @@ const FloatRect AnimowaneAssety::getBounds() const
 	return this->sprite.getGlobalBounds();
 }
 
-void AnimowaneAssety::update()
+void AnimowaneAssety::update(float& dt)
 {
 
 }

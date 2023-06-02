@@ -10,7 +10,7 @@ Bonus::~Bonus()
 {
 }
 
-void Bonus::update()
+void Bonus::update(float& dt)
 {
 	this->sprite.move(0, (this->movementSpeed)/4);
 	this->sprite.setRotation(frame*2);

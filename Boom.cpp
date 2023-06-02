@@ -24,7 +24,7 @@ float Boom::getCzas()
 	return clock.getElapsedTime().asMilliseconds();
 }
 
-void Boom::update()
+void Boom::update(float& dt)
 {
 	frame += 1;
 	if (frame > 42) { frame = 0; }

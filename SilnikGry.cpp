@@ -130,6 +130,9 @@ void SilnikGry::run()
 {
 	while (this->okno->isOpen())
 	{
+		delta_time = delta_clock.restart();
+		float dt = delta_time.asSeconds();
+
 		this->updatePollEvents();
 		this->update();
 		this->render();
@@ -169,7 +172,7 @@ void SilnikGry::updatePollEvents()
 		if (e.Event::KeyPressed && e.Event::key.code == Keyboard::Escape)
 			this->okno->close();
 	}
-	if (Mouse::isButtonPressed(Mouse::Left) && this->cooldown.asMilliseconds() > 2) {
+	if (Mouse::isButtonPressed(Mouse::Left) && this->cooldown.asMilliseconds() > 50) {
 		this->missiles.emplace_back(new Missile(this->textures["missile"], translated_pos.x - 8, translated_pos.y - this->player->getBounds().height / 2));
 		sound.setBuffer(this->buffer_shoot);
 		sound.play();
@@ -208,7 +211,9 @@ void SilnikGry::updateCollision()
 			if ((*ast)->getBounds().intersects((*mis)->getBounds())) {
 				sound_boom.setBuffer(this->buffer_boom);
 				sound_boom.play();
+				
 				this->coins.emplace_back(new Coin(this->textures["coin"], (*mis)->getPos().x, (*mis)->getPos().y));
+				
 				this->explosions.emplace_back(new Boom(this->textures["boom"], (*ast)->getPos().x - (*ast)->getBounds().width / 2, (*ast)->getPos().y - (*ast)->getBounds().height / 2));
 
 				// Usuniêcie obiektu z wektora asteroids
@@ -243,7 +248,7 @@ void SilnikGry::updateCollision()
 					sound_boom.setBuffer(this->buffer_boom);
 					sound_boom.play();
 					if (rand() % 20 < 2) { // SZANSA NA BONUS!!!
-						this->bonuses.emplace_back(new Bonus(this->textures["boom"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
+						this->bonuses.emplace_back(new Bonus(this->textures["star"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
 					}
 					else {
 						this->coins.emplace_back(new Coin(this->textures["coin"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
@@ -442,28 +447,28 @@ void SilnikGry::update()
 
 	this->updateGui();
 	this->updateCollision();
-	this->player->update();
+	this->player->update(dt);
 
 	for (auto el : this->coins) {
-		el->update();
+		el->update(dt);
 	}
 	for (auto el : this->asteroids) {
-		el->update();
+		el->update(dt);
 	}
 	for (auto el : this->missiles) {
-		el->update();
+		el->update(dt);
 	}
 	for (auto el : this->explosions) {
-		el->update();
+		el->update(dt);
 	}
 	for (auto el : this->enemies) {
-		el->update();
+		el->update(dt);
 	}
 	for (auto el : this->enemies_2) {
-		el->update();
+		el->update(dt);
 	}
 	for (auto el : this->bonuses) {
-		el->update();
+		el->update(dt);
 	}
 	for (auto el : this->indicators) {
 		el->update();

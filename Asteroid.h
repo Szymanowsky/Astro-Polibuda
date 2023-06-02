@@ -14,7 +14,7 @@ public:
 
 	int frame = rand() % 1024;
 	
-	void update();
+	void update(float& dt);
 
 };
 

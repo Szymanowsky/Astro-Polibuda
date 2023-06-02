@@ -15,7 +15,7 @@ Missile::~Missile()
 {
 }
 
-void Missile::update()
+void Missile::update(float& dt)
 {
 	this->sprite.move(0,-(this->movementSpeed));
 

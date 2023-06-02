@@ -24,7 +24,7 @@ Enemy::~Enemy()
 {
 }
 
-void Enemy::update()
+void Enemy::update(float& dt)
 {
 	this->sprite.move(x_speed,y_speed);
 

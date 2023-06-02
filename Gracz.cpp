@@ -9,7 +9,7 @@ Gracz::~Gracz()
 {
 }
 
-void Gracz::update()
+void Gracz::update(float& dt)
 {
     /*
     if (this->sprite.getPosition().x + this->sprite.getGlobalBounds().width > 1280) {     //   this->setPosition(1280, this->getPos().y);
