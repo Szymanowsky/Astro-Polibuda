@@ -230,7 +230,13 @@ void SilnikGry::updateCollision()
 				if (enemy->HP <= 0) {
 					sound_boom.setBuffer(this->buffer_boom);
 					sound_boom.play();
-					this->coins.emplace_back(new Coin("textures/coin.png", (*mis)->getPos().x, (*mis)->getPos().y));
+					if (rand() % 4 < 3) { // SZANSA NA BONUS!!!
+						this->bonuses.emplace_back(new Bonus("textures/star.png", (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
+						cout << "ELO";
+					}
+					else {
+						this->coins.emplace_back(new Coin("textures/coin.png", (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));
+					}
 					this->explosions.emplace_back(new Boom("textures/boom.png", (*en)->getPos().x-((120-(*en)->getBounds().width)/2), (*en)->getPos().y - ((200 - (*en)->getBounds().height) / 2)));
 					delete* en;
 					en = enemies.erase(en);
@@ -273,6 +279,15 @@ void SilnikGry::updateCollision()
 			}
 		}
 
+		//BONUS
+		for (auto* el : this->bonuses) {
+			if (el->getBounds().intersects(this->player->getBounds())) {
+				bonuses.erase(std::remove(bonuses.begin(), bonuses.end(), el), bonuses.end());
+				delete el;
+				this->power++;
+			}
+		}
+
 		//ASTEROIDA 
 		for (auto* ast : this->asteroids) {
 			if (ast->getPos().y > 720 + ast->getBounds().height) {
@@ -304,8 +319,8 @@ void SilnikGry::updateCollision()
 				if (enemy->HP <= 0) {
 					sound_boom.setBuffer(this->buffer_boom);
 					sound_boom.play();
-					this->coins.emplace_back(new Coin("textures/coin.png", (*en)->getPos().x, (*en)->getPos().y));
-					this->explosions.emplace_back(new Boom("textures/boom.png", (*en)->getPos().x - ((120 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((200 - (*en)->getBounds().height) / 2)));
+					this->coins.emplace_back(new Coin("textures/coin.png", (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));  //WYMIARY ENEMY
+					this->explosions.emplace_back(new Boom("textures/boom.png", (*en)->getPos().x - ((120 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((160 - (*en)->getBounds().height) / 2)));  //WYMIARY EKSPLOZJI
 					delete* en;
 					en = enemies.erase(en);
 				}
@@ -349,6 +364,9 @@ void SilnikGry::update()
 	for (auto el : this->enemies) {
 		el->update();
 	}
+	for (auto el : this->bonuses) {
+		el->update();
+	}
 	if (frame > 960) { frame = 0; }
 	this->spriteTlo.setTextureRect(IntRect(0, 480 - int(frame / 2), 1280,720));
 
@@ -388,6 +406,9 @@ void SilnikGry::render()
 	for (auto el : this->missiles) {
 		el->render(this->okno);
 	}
+	for (auto el : this->bonuses) {
+		el->render(this->okno);
+	}
 	for (auto asset = enemies.begin(); asset != enemies.end();) {
 		if (Enemy* enemy = dynamic_cast<Enemy*>(*asset)) {
 			enemy->render(this->okno);
@@ -424,11 +445,11 @@ void SilnikGry::rozgrywka()
 	if (flaga == 1 && time.asSeconds() > 4) {
 		flaga++;
 		for (int i = 0; i < 4; i++) {
-			this->enemies.emplace_back(new Enemy("textures/enemy.png", rand() % this->okno->getSize().x - 100, (rand() % this->okno->getSize().y) / 4));
+			this->enemies.emplace_back(new Enemy("textures/enemy.png", rand() % (this->okno->getSize().x-200) + 100, (rand() % this->okno->getSize().y) / 4));
 
 			for (int j = 0; j < i; j++) {
 				while (this->enemies[j]->getBounds().intersects(this->enemies[i]->getBounds()) || this->enemies[j]->getBounds().intersects(this->player->getBounds())) {
-					this->enemies[i]->setPosition(rand() % this->okno->getSize().x - 100, (rand() % this->okno->getSize().y) / 4);
+					this->enemies[i]->setPosition(rand() % (this->okno->getSize().x - 200) + 100, (rand() % this->okno->getSize().y) / 4);
 				}
 			}
 		}
