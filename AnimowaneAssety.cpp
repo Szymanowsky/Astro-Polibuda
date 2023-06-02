@@ -7,10 +7,9 @@ AnimowaneAssety::AnimowaneAssety(Texture* texture, float x, float y)
 	{
 		cout << "Error: Nie zaladowano textury!" << endl;
 	}*/
-
+	this->sprite.setPosition(x, y);
 	this->sprite.setTexture(*texture);
 	this->sprite.scale(1.f, 1.f);
-	this->sprite.setPosition(x, y);
 }
 
 AnimowaneAssety::~AnimowaneAssety()
@@ -32,6 +31,11 @@ const Vector2f& AnimowaneAssety::getPos() const
 void AnimowaneAssety::setPosition(const float x, const float y)
 {
 	this->sprite.setPosition(x, y);
+}
+
+float AnimowaneAssety::getCzas()
+{
+	return clock.getElapsedTime().asMilliseconds();
 }
 
 void AnimowaneAssety::move(const float dirX, const float dirY)

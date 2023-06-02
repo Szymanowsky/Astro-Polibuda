@@ -19,10 +19,6 @@ float Boom::getCzasTrwania()
 	return czasTrwania;
 }
 
-float Boom::getCzas()
-{
-	return clock.getElapsedTime().asMilliseconds();
-}
 
 void Boom::update(float& dt)
 {

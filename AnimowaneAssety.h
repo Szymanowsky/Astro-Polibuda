@@ -22,6 +22,8 @@ public:
 	AnimowaneAssety(Texture* texture, float x, float y);
 	virtual ~AnimowaneAssety();
 
+	
+	float getCzas();
 	const Vector2f& getPos() const;
 	const FloatRect getBounds() const;
 

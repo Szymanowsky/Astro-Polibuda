@@ -13,6 +13,7 @@ void Asteroid::update(float& dt)
 {
     this->sprite.move(this->x_speed*dt/16, this->y_speed*dt/16);
 
+    //cout << int(this->sprite.getPosition().x) << "   " << int(this->sprite.getPosition().y) << "        " << this->sprite.getGlobalBounds().height/2 << "   " << int(this->sprite.getPosition().y) - this->sprite.getGlobalBounds().height / 2 <<endl;
 
     if (this->sprite.getPosition().x < 0 || this->sprite.getPosition().x + this->sprite.getGlobalBounds().width > 1280) {
         this->x_speed *= -1;

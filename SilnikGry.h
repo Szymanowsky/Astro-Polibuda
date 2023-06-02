@@ -106,7 +106,7 @@ private:
 	int rof = 10;
 	int frame;
 	int flaga = 0;
-	int szansa = 2; // 20 - 100%  <-- 10 - 50% -->   0 - 0%
+	int szansa = 1; // 20 - 100%  <-- 10 - 50% -->   0 - 0%
 
 public:
 	SilnikGry();

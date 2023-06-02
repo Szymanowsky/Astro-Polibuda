@@ -14,7 +14,7 @@ public:
 	~Boom();
 
 	float getCzasTrwania();
-	float getCzas();
+
 
 	void update(float& dt);
 
