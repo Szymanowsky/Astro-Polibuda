@@ -18,6 +18,7 @@
 #include "Enemy.h"
 #include "Bonus.h"
 #include "Indicator.h"
+#include "Boss.h"
 
 #include <string>
 #include <sstream>

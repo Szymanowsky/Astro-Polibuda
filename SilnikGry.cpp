@@ -389,7 +389,7 @@ void SilnikGry::updateCollision()
 		bool collisionDetected = false;
 		Enemy* enemy = dynamic_cast<Enemy*>(*en);
 
-		if (rand() % 1000 < 1 && (*en)->getCzas() > 2000) {
+		if (rand() % 1000 < 1 && (*en)->getCzas() > 2000 && (*en)->getPos().y > -100) {
 			this->enemy_missiles.emplace_back(new Enemy_missile(this->textures["bomb"], (*en)->getPos().x+26, (*en)->getPos().y+(*en)->getBounds().height/1.8  ));
 			(*en)->restetCzas();
 		}
@@ -459,7 +459,7 @@ void SilnikGry::updateCollision()
 		bool collisionDetected = false;
 		Enemy* enemy = dynamic_cast<Enemy*>(*en);
 
-		if (rand() % 1000 < 2 && (*en)->getCzas() > 1000) {
+		if (rand() % 1000 < 2 && (*en)->getCzas() > 1000 && (*en)->getPos().y > -100) {
 			this->enemy_missiles.emplace_back(new Enemy_missile(this->textures["bomb"], (*en)->getPos().x + 26, (*en)->getPos().y + (*en)->getBounds().height / 1.8));
 			(*en)->restetCzas();
 		}
@@ -731,7 +731,7 @@ void SilnikGry::update()
 
 	this->frame++;
 
-	//cout << dt << endl;
+	cout << flaga << endl;
 
 	this->updateGui();
 	this->updateCollision();
@@ -887,21 +887,20 @@ void SilnikGry::rozgrywka()
 {
 	if (flaga == 0 && time.asSeconds() > 1) {
 		flaga++;
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < rand() % 6 + 4; i++) {
 			this->asteroids.emplace_back(new Asteroid(this->textures["asteroid"], rand() % (this->okno->getSize().x - 200) + 100, rand()% 800 - 1000));
 		}
 	}
 	if (flaga == 1 && time.asSeconds() > 8 && this->asteroids.empty()) {
 		flaga++;
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < rand() % 6 + 4; i++) {
 			this->enemies.emplace_back(new Enemy(this->textures["enemy"], rand() % (this->okno->getSize().x-200) + 100, rand() % 800 - 1000));
 		}
 	}
 	if (flaga == 2 && time.asSeconds() > 18 && this->enemies.empty()) {
 		flaga++;
-		for (int i = 0; i < 8; i++) {
+		for (int i = 0; i < rand() % 8 + 4; i++) {
 			this->enemies.emplace_back(new Enemy(this->textures["enemy_2"], rand() % (this->okno->getSize().x - 200) + 100, rand() % 800 - 1000));
-
 			/*for (int j = 0; j < i; j++) { 
 				while (this->enemies[j]->getBounds().intersects(this->enemies[i]->getBounds()) || this->enemies[j]->getBounds().intersects(this->player->getBounds())) {
 					this->enemies[i]->setPosition(rand() % (this->okno->getSize().x - 200) + 100, -200);
@@ -909,16 +908,30 @@ void SilnikGry::rozgrywka()
 			}*/  
 		}
 	}
-	if (flaga == 3 && time.asSeconds() > 24 && this->enemies_2.empty()) {
+	if (flaga == 3 && time.asSeconds() > 24 && this->enemies.empty()) {
 		flaga++;
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < rand() % 2 + 2; i++) {
 			this->enemies_2.emplace_back(new Enemy(this->textures["enemy_2"], rand() % (this->okno->getSize().x - 200) + 100, rand() % 800 - 1000));
 		}
 	}
 	if (flaga == 4 && time.asSeconds() > 48) {
 		flaga++;
-		for (int i = 0; i < 16; i++) {
+		for (int i = 0; i < rand() % 4 + 4; i++) {
 			this->asteroids.emplace_back(new Asteroid(this->textures["asteroid"], rand() % (this->okno->getSize().x - 200) + 100, rand() % 800 - 1000));
 		}
+	}
+	if (flaga == 5 && time.asSeconds() > 52) {
+		flaga++;
+		if (rand() % 20 < 5) {
+			for (int i = 0; i < rand() % 8 + 4; i++) {
+				this->enemies.emplace_back(new Enemy(this->textures["enemy"], rand() % (this->okno->getSize().x - 200) + 100, rand() % 800 - 1000));
+			}
+		}
+		else {
+			for (int i = 0; i < rand() % 4 + 2; i++) {
+				this->enemies.emplace_back(new Enemy(this->textures["enemy_2"], rand() % (this->okno->getSize().x - 200) + 100, rand() % 800 - 1000));
+			}
+		}
+		
 	}
 }
