@@ -33,7 +33,7 @@ float AnimowaneAssety::getCzas()
 	return clock.getElapsedTime().asMilliseconds();
 }
 
-void AnimowaneAssety::restetCzas()
+void AnimowaneAssety::resetCzas()
 {
 	this->clock.restart();
 }

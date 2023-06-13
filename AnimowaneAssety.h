@@ -24,7 +24,7 @@ public:
 
 	
 	float getCzas();
-	void restetCzas();
+	void resetCzas();
 	const Vector2f& getPos() const;
 	const FloatRect getBounds() const;
 
