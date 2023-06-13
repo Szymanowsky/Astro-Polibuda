@@ -17,7 +17,6 @@ public:
 	Enemy(Texture* texture, float x, float y);
 	~Enemy();
 
-	int frame = rand() % 21;
 	int HP = 100;
 	void update(float& dt);
 	void render(RenderTarget* target);

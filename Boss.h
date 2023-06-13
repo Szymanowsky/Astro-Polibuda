@@ -3,7 +3,7 @@
 
 
 
-class Enemy : public AnimowaneAssety
+class Boss : public AnimowaneAssety
 {
 protected:
 	float x_speed;
@@ -14,11 +14,10 @@ protected:
 
 	bool ScreenGrabbed = 0;
 public:
-	Enemy(Texture* texture, float x, float y);
-	~Enemy();
+	Boss(Texture* texture, float x, float y);
+	~Boss();
 
-	int frame = rand() % 21;
-	int HP = 100;
+	int HP = 1000;
 	void update(float& dt);
 	void render(RenderTarget* target);
 };

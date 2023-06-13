@@ -48,6 +48,9 @@ void SilnikGry::stworzTekstury()
 
 	this->textures["enemy_2"] = new Texture;
 	this->textures["enemy_2"]->loadFromFile("textures/enemy_2.png");
+	
+	this->textures["boss"] = new Texture;
+	this->textures["boss"]->loadFromFile("textures/boss.png");
 }
 
 
@@ -154,6 +157,10 @@ void SilnikGry::stworzGui()
 		this->okno->getSize().x / 2 - this->start.getGlobalBounds().width / 2,
 		this->okno->getSize().y / 1.10 - this->start.getGlobalBounds().height / 2
 	);
+
+	this->napisKoncowy.setFont(this->font);
+	this->napisKoncowy.setCharacterSize(100);
+	this->napisKoncowy.setStyle(sf::Text::Bold);
 }
 
 void SilnikGry::stworzObiekty()
@@ -217,10 +224,46 @@ void SilnikGry::run()
 	while (this->okno->isOpen())
 	{
 		this->updatePollEvents();
-		if (!gamePaused) {
+		if (!gamePaused && this->HP > 0 && koniecGry == 0) {
 			this->update();
 			this->render();
 			this->rozgrywka();
+		}
+		else if (this->HP <= 0) {
+			koniecGry = 1;
+			this->okno->clear();
+			this->napisKoncowy.setFillColor(Color::Red);
+			this->napisKoncowy.setString("YOU DIED");
+			this->napisKoncowy.setPosition(
+				this->okno->getSize().x / 2 - this->napisKoncowy.getGlobalBounds().width / 2,
+				this->okno->getSize().y / 2 - this->napisKoncowy.getGlobalBounds().height / 2
+			);
+			this->okno->draw(this->napisKoncowy);
+			this->okno->display();
+		}
+		else if (koniecGry == 1) {
+			this->okno->clear();
+			this->napisKoncowy.setFillColor(Color::Green);
+			this->napisKoncowy.setString("YOU WIN");
+			this->napisKoncowy.setPosition(
+				this->okno->getSize().x / 2 - this->napisKoncowy.getGlobalBounds().width / 2,
+				this->okno->getSize().y / 2 - this->napisKoncowy.getGlobalBounds().height / 2
+			);
+
+			stringstream money;
+			money << "YOU EARNED: " << this->money << "$";
+
+			this->start.setFillColor(Color::Green);
+			this->start.setString(money.str());
+			this->start.setPosition(
+				this->okno->getSize().x / 2 - this->start.getGlobalBounds().width / 2,
+				this->okno->getSize().y / 1.5 - this->start.getGlobalBounds().height / 2
+			);
+
+			this->okno->draw(this->napisKoncowy);
+			this->okno->draw(this->start);
+			this->okno->display();
+
 		}
 	}
 }
@@ -232,7 +275,11 @@ void SilnikGry::updatePollEvents()
 		if (e.Event::type == Event::Closed)
 			this->okno->close();
 
-		if (e.type == Event::KeyPressed && e.Event::key.code == Keyboard::Escape && !wstep) {
+		if (e.type == Event::KeyPressed && e.Event::key.code == Keyboard::Escape && koniecGry == 1) {
+			this->okno->close();
+		}
+
+		if (e.type == Event::KeyPressed && e.Event::key.code == Keyboard::Escape && !wstep && koniecGry == 0) {
 			gamePaused = !gamePaused;
 			delta_clock.restart();
 			if (gamePaused == 1) {
@@ -523,6 +570,48 @@ void SilnikGry::updateCollision()
 		}
 	}
 
+	Boss* boss = dynamic_cast<Boss*>(this->boss_enemy);
+
+	if (boss != nullptr) {
+		for (auto mis = missiles.begin(); mis != missiles.end();) {
+			if ((*mis)->getBounds().intersects(boss->getBounds()) && boss->getCzas() > 1000) {
+				int wartosc_damage = 10 * this->power;
+				boss->HP -= wartosc_damage;
+
+				// Usuniêcie obiektu
+				if (boss->HP <= 0) {
+					sound_boom.setBuffer(this->buffer_boom);
+					sound_boom.play();
+
+					int wartosc_money = 200 * this->mnoznik;
+
+					stringstream ind;
+					ind << "+" << wartosc_money;
+
+					this->indicators.emplace_back(new Indicator(boss->getPos().x - ((200 - boss->getBounds().width) / 2) + 160, boss->getPos().y - ((200 - boss->getBounds().height) / 2) -40, ind.str(), Color(252, 194, 0, 1)));
+
+					this->money += wartosc_money;
+					this->explosions.emplace_back(new Boom(this->textures["boom"], boss->getPos().x - ((120 - boss->getBounds().width) / 2), boss->getPos().y - ((200 - boss->getBounds().height) / 2)));
+					delete boss;
+				}
+				else {
+					stringstream ind;
+					ind << "-" << wartosc_damage;
+
+					this->indicators.emplace_back(new Indicator(boss->getPos().x - ((200 - boss->getBounds().width) / 2) + 160, boss->getPos().y - ((200 - boss->getBounds().height) / 2) - 40, ind.str(), Color(255, 71, 73, 1)));
+				}
+				// Usuniêcie obiektu z wektora missiles
+				this->explosions.emplace_back(new Boom(this->textures["boom"], (*mis)->getPos().x - ((*mis)->getBounds().width / 2), (*mis)->getPos().y - ((*mis)->getBounds().height / 2) - 22, 0.4f));
+				delete* mis;
+				mis = missiles.erase(mis);
+			}
+			else {
+				++mis;
+			}
+
+		}
+	}
+
 	//POCISK
 	for (auto mis = missiles.begin(); mis != missiles.end(); ) {
         if ((*mis)->getPos().y < -200) {
@@ -564,8 +653,8 @@ void SilnikGry::updateCollision()
 		}
 	}
 
-	if (this->player->getCzas()  > 2000){
-		
+	if (this->player->getCzas() > 2000) {
+
 		for (auto el : this->enemy_missiles) {
 			if (el->getBounds().intersects(this->player->getBounds())) {
 
@@ -634,7 +723,7 @@ void SilnikGry::updateCollision()
 			}
 		}
 
-		
+
 
 		//ASTEROIDA 
 		for (auto* ast : this->asteroids) {
@@ -644,7 +733,7 @@ void SilnikGry::updateCollision()
 			}
 			//ASTEROIDA + GRACZ
 			else if (ast->getBounds().intersects(this->player->getBounds())) {
-				this->explosions.emplace_back(new Boom(this->textures["boom"], player->getPos().x-player->getBounds().width/2, player->getPos().y - player->getBounds().height / 2));
+				this->explosions.emplace_back(new Boom(this->textures["boom"], player->getPos().x - player->getBounds().width / 2, player->getPos().y - player->getBounds().height / 2));
 				asteroids.erase(std::remove(asteroids.begin(), asteroids.end(), ast), asteroids.end());
 				delete ast;
 				this->HP -= 25;
@@ -667,7 +756,7 @@ void SilnikGry::updateCollision()
 				this->explosions.emplace_back(new Boom(this->textures["boom"], player->getPos().x - player->getBounds().width / 2, player->getPos().y - player->getBounds().height / 2));
 				this->HP -= 25;
 				this->player->restetCzas();
-				this->indicators.emplace_back(new Indicator(player->getPos().x + 80, player->getPos().y -20, "-25HP", Color(255, 71, 73, 1)));
+				this->indicators.emplace_back(new Indicator(player->getPos().x + 80, player->getPos().y - 20, "-25HP", Color(255, 71, 73, 1)));
 				if (enemy->HP <= 0) {
 					sound_boom.setBuffer(this->buffer_boom);
 					sound_boom.play();
@@ -689,37 +778,59 @@ void SilnikGry::updateCollision()
 			if (!collisionDetected) {
 				++en;
 			}
-			for (auto en = enemies_2.begin(); en != enemies_2.end(); ) {
-				bool collisionDetected = false;
-				Enemy* enemy = dynamic_cast<Enemy*>(*en);
-				if ((*en)->getBounds().intersects(this->player->getBounds())) {
-					enemy->HP -= 25;
-					this->explosions.emplace_back(new Boom(this->textures["boom"], player->getPos().x - player->getBounds().width / 2, player->getPos().y - player->getBounds().height / 2));
-					this->HP -= 25;
-					this->player->restetCzas();
-					this->indicators.emplace_back(new Indicator(player->getPos().x + 80, player->getPos().y - 20, "-25HP", Color(255, 71, 73, 1)));
-					if (enemy->HP <= 0) {
-						sound_boom.setBuffer(this->buffer_boom);
-						sound_boom.play();
-						this->coins.emplace_back(new Coin(this->textures["coin"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));  //WYMIARY ENEMY
-						this->explosions.emplace_back(new Boom(this->textures["boom"], (*en)->getPos().x - ((120 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((160 - (*en)->getBounds().height) / 2)));  //WYMIARY EKSPLOZJI
-						delete* en;
-						en = enemies_2.erase(en);
-					}
-					Vector2i start_position(this->okno->getSize().x / 2 - this->player->getBounds().width / 2,
-						this->okno->getSize().y / 2 - this->player->getBounds().height / 2 + 260);
-					Mouse::setPosition(start_position, *this->okno);
+		}
 
+		for (auto en = enemies_2.begin(); en != enemies_2.end(); ) {
+			bool collisionDetected = false;
+			Enemy* enemy = dynamic_cast<Enemy*>(*en);
+			if ((*en)->getBounds().intersects(this->player->getBounds())) {
+				enemy->HP -= 25;
+				this->explosions.emplace_back(new Boom(this->textures["boom"], player->getPos().x - player->getBounds().width / 2, player->getPos().y - player->getBounds().height / 2));
+				this->HP -= 25;
+				this->player->restetCzas();
+				this->indicators.emplace_back(new Indicator(player->getPos().x + 80, player->getPos().y - 20, "-25HP", Color(255, 71, 73, 1)));
+				if (enemy->HP <= 0) {
 					sound_boom.setBuffer(this->buffer_boom);
 					sound_boom.play();
+					this->coins.emplace_back(new Coin(this->textures["coin"], (*en)->getPos().x - ((80 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((80 - (*en)->getBounds().height) / 2)));  //WYMIARY ENEMY
+					this->explosions.emplace_back(new Boom(this->textures["boom"], (*en)->getPos().x - ((120 - (*en)->getBounds().width) / 2), (*en)->getPos().y - ((160 - (*en)->getBounds().height) / 2)));  //WYMIARY EKSPLOZJI
+					delete* en;
+					en = enemies_2.erase(en);
+				}
+				Vector2i start_position(this->okno->getSize().x / 2 - this->player->getBounds().width / 2,
+					this->okno->getSize().y / 2 - this->player->getBounds().height / 2 + 260);
+				Mouse::setPosition(start_position, *this->okno);
 
-					collisionDetected = true;
-					break;
-				}
-				if (!collisionDetected) {
-					++en;
-				}
+				sound_boom.setBuffer(this->buffer_boom);
+				sound_boom.play();
+
+				collisionDetected = true;
+				break;
 			}
+			if (!collisionDetected) {
+				++en;
+			}
+		}
+
+		if (boss_enemy != nullptr && boss->getBounds().intersects(this->player->getBounds())) {
+			boss->HP -= 25;
+			this->explosions.emplace_back(new Boom(this->textures["boom"], player->getPos().x - player->getBounds().width / 2, player->getPos().y - player->getBounds().height / 2));
+			this->HP -= 25;
+			this->player->restetCzas();
+			this->indicators.emplace_back(new Indicator(player->getPos().x + 80, player->getPos().y - 20, "-25HP", Color(255, 71, 73, 1)));
+			if (boss->HP <= 0) {
+				sound_boom.setBuffer(this->buffer_boom);
+				sound_boom.play();
+				this->coins.emplace_back(new Coin(this->textures["coin"], boss->getPos().x - ((80 - boss->getBounds().width) / 2), boss->getPos().y - ((80 - boss->getBounds().height) / 2)));  //WYMIARY ENEMY
+				this->explosions.emplace_back(new Boom(this->textures["boom"], boss->getPos().x - ((120 - boss->getBounds().width) / 2), boss->getPos().y - ((160 - boss->getBounds().height) / 2)));  //WYMIARY EKSPLOZJI
+				delete boss;
+			}
+			Vector2i start_position(this->okno->getSize().x / 2 - this->player->getBounds().width / 2,
+				this->okno->getSize().y / 2 - this->player->getBounds().height / 2 + 260);
+			Mouse::setPosition(start_position, *this->okno);
+
+			sound_boom.setBuffer(this->buffer_boom);
+			sound_boom.play();
 		}
 	}
 }
@@ -731,14 +842,14 @@ void SilnikGry::update()
 
 	this->frame++;
 
-	cout << flaga << endl;
 
 	this->updateGui();
 	this->updateCollision();
 
 	this->player->update(dt);
 
-
+	if(boss_enemy != nullptr)
+	this->boss_enemy->update(dt);
 
 	for (auto el : this->coins) {
 		el->update(dt);
@@ -858,6 +969,12 @@ void SilnikGry::render()
 		}
 		++asset;
 	}
+
+
+	if (boss_enemy != nullptr) {
+		Boss* el = dynamic_cast<Boss*>(boss_enemy);
+		el->render(this->okno);
+	}
 	
 
 	this->player->render(this->okno);
@@ -889,6 +1006,7 @@ void SilnikGry::rozgrywka()
 		flaga++;
 		for (int i = 0; i < rand() % 6 + 4; i++) {
 			this->asteroids.emplace_back(new Asteroid(this->textures["asteroid"], rand() % (this->okno->getSize().x - 200) + 100, rand()% 800 - 1000));
+			//boss_enemy = new Boss(this->textures["boss"], rand() % (this->okno->getSize().x - 200) + 100, rand() % 800 - 1000);
 		}
 	}
 	if (flaga == 1 && time.asSeconds() > 8 && this->asteroids.empty()) {
@@ -932,6 +1050,8 @@ void SilnikGry::rozgrywka()
 				this->enemies.emplace_back(new Enemy(this->textures["enemy_2"], rand() % (this->okno->getSize().x - 200) + 100, rand() % 800 - 1000));
 			}
 		}
-		
+	}
+	if (flaga == 6 && time.asSeconds() > 62 && this->enemies.empty() && this->enemies_2.empty() && this->asteroids.empty() && boss_enemy == nullptr) {
+		koniecGry = 1;
 	}
 }

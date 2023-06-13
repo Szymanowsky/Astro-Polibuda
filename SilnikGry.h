@@ -70,6 +70,7 @@ private:
 	vector<AnimowaneAssety*> bonuses_health;
 	vector<AnimowaneAssety*> bonuses_x2;
 	vector<AnimowaneAssety*> bonuses_rof;
+	AnimowaneAssety* boss_enemy;
 	
 
 	//System
@@ -93,12 +94,13 @@ private:
 	Text start;
 	Text latwy;
 	Text trudny;
+	Text napisKoncowy;
 
 	vector<Indicator*> indicators;
 
 	RectangleShape rectangle;
-	RectangleShape tloMenu;
 	RectangleShape HP_bar; 
+	RectangleShape tloMenu;
 	RectangleShape tloGlowneMenu;
 
 	Sound sound;
@@ -121,6 +123,7 @@ private:
 	int szansa = 1; // 20 - 100%  <-- 10 - 50% -->   0 - 0%
 
 	bool wstep = 1;
+	bool koniecGry = 0;
 	bool gamePaused = 0;
 
 public:
